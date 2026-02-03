@@ -1,0 +1,213 @@
+# Example Automations for Spotify Statistics Integration
+#
+# Copy these examples to your automations.yaml and customize as needed.
+# Replace "ian" with your actual Spotify username.
+
+# Daily listening history export
+automation:
+  - alias: "Spotify: Export Daily Listening History"
+    description: "Export recently played tracks to CSV every night"
+    trigger:
+      - platform: time
+        at: "23:55:00"
+    action:
+      - service: spotify_stats.export_recently_played_csv
+        data:
+          username: "ian"
+          filepath: "/config/www/spotify/ian_listening_history.csv"
+          append: true
+          include_audio_features: false
+
+  # Weekly full library backup
+  - alias: "Spotify: Weekly Library Backup"
+    description: "Full backup of followed artists, library, and playlists every Sunday"
+    trigger:
+      - platform: time
+        at: "02:00:00"
+    condition:
+      - condition: time
+        weekday:
+          - sun
+    action:
+      - service: spotify_stats.export_followed_artists
+        data:
+          username: "ian"
+          filepath: "/config/www/spotify/backups/ian_followed_artists_{{ now().strftime('%Y%m%d') }}.json"
+      - delay: "00:00:30"
+      - service: spotify_stats.export_saved_library
+        data:
+          username: "ian"
+          filepath: "/config/www/spotify/backups/ian_library_{{ now().strftime('%Y%m%d') }}.json"
+      - delay: "00:00:30"
+      - service: spotify_stats.export_playlists
+        data:
+          username: "ian"
+          filepath: "/config/www/spotify/backups/ian_playlists_{{ now().strftime('%Y%m%d') }}.json"
+
+  # Monthly top stats snapshot
+  - alias: "Spotify: Monthly Top Stats"
+    description: "Export top artists and tracks on the first of each month"
+    trigger:
+      - platform: time
+        at: "03:00:00"
+    condition:
+      - condition: template
+        value_template: "{{ now().day == 1 }}"
+    action:
+      - service: spotify_stats.export_top_stats_csv
+        data:
+          username: "ian"
+          filepath: "/config/www/spotify/stats/ian_top_artists_{{ now().strftime('%Y%m') }}.csv"
+          entity_type: "artists"
+          time_range: "short_term"
+      - delay: "00:00:10"
+      - service: spotify_stats.export_top_stats_csv
+        data:
+          username: "ian"
+          filepath: "/config/www/spotify/stats/ian_top_tracks_{{ now().strftime('%Y%m') }}.csv"
+          entity_type: "tracks"
+          time_range: "short_term"
+
+  # Speed up updates when actively listening
+  - alias: "Spotify: Speed Up Updates When Playing"
+    description: "Increase polling frequency when music is playing"
+    trigger:
+      - platform: state
+        entity_id: sensor.ian_spotify_stats_now_playing
+        to: "playing"
+    action:
+      - service: spotify_stats.set_update_interval
+        data:
+          username: "ian"
+          now_playing_interval: 30
+
+  # Slow down updates when idle
+  - alias: "Spotify: Slow Down Updates When Idle"
+    description: "Reduce polling frequency after 5 minutes of inactivity"
+    trigger:
+      - platform: state
+        entity_id: sensor.ian_spotify_stats_now_playing
+        to: "idle"
+        for: "00:05:00"
+    action:
+      - service: spotify_stats.set_update_interval
+        data:
+          username: "ian"
+          now_playing_interval: 120
+
+  # Notification when a followed artist releases new music
+  # (Requires additional integration to detect new releases)
+  - alias: "Spotify: New Release Alert"
+    description: "Get notified when followed artists have new releases"
+    trigger:
+      - platform: state
+        entity_id: sensor.ian_spotify_stats_followed_artists
+    condition:
+      - condition: template
+        value_template: "{{ trigger.to_state.state | int > trigger.from_state.state | int }}"
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "New Artist Followed"
+          message: "You're now following {{ state_attr('sensor.ian_spotify_stats_followed_artists', 'artists')[0].name }} on Spotify"
+
+  # Export with audio features on weekends
+  - alias: "Spotify: Weekend Audio Features Export"
+    description: "Export detailed listening data with audio features on Saturdays"
+    trigger:
+      - platform: time
+        at: "23:55:00"
+    condition:
+      - condition: time
+        weekday:
+          - sat
+    action:
+      - service: spotify_stats.export_recently_played_csv
+        data:
+          username: "ian"
+          filepath: "/config/www/spotify/ian_listening_history_detailed.csv"
+          append: true
+          include_audio_features: true
+
+  # Multi-user example: Export for household
+  - alias: "Spotify: Household Daily Export"
+    description: "Export listening history for all household members"
+    trigger:
+      - platform: time
+        at: "23:50:00"
+    action:
+      # Ian's export
+      - service: spotify_stats.export_recently_played_csv
+        data:
+          username: "ian"
+          filepath: "/config/www/spotify/ian_listening_history.csv"
+          append: true
+      # Sal's export
+      - delay: "00:00:10"
+      - service: spotify_stats.export_recently_played_csv
+        data:
+          username: "sal"
+          filepath: "/config/www/spotify/sal_listening_history.csv"
+          append: true
+
+  # Presence-based polling: Home vs Away
+  - alias: "Spotify: Fast Polling When Home"
+    description: "Poll more frequently when you're home"
+    trigger:
+      - platform: state
+        entity_id: person.ian
+        to: "home"
+    action:
+      - service: spotify_stats.set_update_interval
+        data:
+          username: "ian"
+          now_playing_interval: 30
+          recently_played_interval: 300
+
+  - alias: "Spotify: Slow Polling When Away"
+    description: "Reduce polling when you're away from home"
+    trigger:
+      - platform: state
+        entity_id: person.ian
+        to: "not_home"
+        for: "00:15:00"
+    action:
+      - service: spotify_stats.set_update_interval
+        data:
+          username: "ian"
+          now_playing_interval: 120
+          recently_played_interval: 600
+
+  # Manual refresh button automation
+  - alias: "Spotify: Manual Refresh Button"
+    description: "Refresh now playing when button is pressed"
+    trigger:
+      - platform: state
+        entity_id: input_button.spotify_refresh
+    action:
+      - service: spotify_stats.refresh_now_playing
+        data:
+          username: "ian"
+
+  # Quarterly archive: Every 3 months
+  - alias: "Spotify: Quarterly Archive"
+    description: "Create quarterly archive of all data"
+    trigger:
+      - platform: time
+        at: "01:00:00"
+    condition:
+      - condition: template
+        value_template: "{{ now().day == 1 and now().month in [1, 4, 7, 10] }}"
+    action:
+      - service: spotify_stats.export_followed_artists
+        data:
+          username: "ian"
+          filepath: "/config/www/spotify/archives/Q{{ ((now().month-1)//3 + 1) }}_{{ now().year }}/ian_followed_artists.json"
+      - service: spotify_stats.export_saved_library
+        data:
+          username: "ian"
+          filepath: "/config/www/spotify/archives/Q{{ ((now().month-1)//3 + 1) }}_{{ now().year }}/ian_library.json"
+      - service: spotify_stats.export_playlists
+        data:
+          username: "ian"
+          filepath: "/config/www/spotify/archives/Q{{ ((now().month-1)//3 + 1) }}_{{ now().year }}/ian_playlists.json"

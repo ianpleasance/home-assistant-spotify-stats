@@ -1,0 +1,10 @@
+{
+  "name": "Spotify Statistics",
+  "content_in_root": false,
+  "filename": "home-assistant-spotify-stats",
+  "render_readme": true,
+  "homeassistant": "2024.1.0",
+  "zip_release": true,
+  "domains": ["sensor"],
+  "iot_class": "Cloud Polling"
+}

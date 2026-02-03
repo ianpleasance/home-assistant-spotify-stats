@@ -1,0 +1,193 @@
+# Example Dashboard Configuration for Spotify Statistics
+#
+# Add this to your Lovelace dashboard configuration
+
+title: Spotify Statistics
+icon: mdi:spotify
+
+cards:
+  # Now Playing Card
+  - type: entities
+    title: Now Playing
+    entities:
+      - entity: sensor.ian_spotify_stats_now_playing
+        name: Ian
+        secondary_info: last-changed
+      - entity: sensor.sal_spotify_stats_now_playing
+        name: Sal
+        secondary_info: last-changed
+
+  # Current Track Details
+  - type: conditional
+    conditions:
+      - entity: sensor.ian_spotify_stats_now_playing
+        state_not: "idle"
+    card:
+      type: picture
+      image: "{{ state_attr('sensor.ian_spotify_stats_now_playing', 'image_url') }}"
+      tap_action:
+        action: url
+        url_path: "{{ state_attr('sensor.ian_spotify_stats_now_playing', 'track_url') }}"
+
+  # Recently Played
+  - type: markdown
+    title: Ian's Recently Played
+    content: |
+      {% set tracks = state_attr('sensor.ian_spotify_stats_recently_played', 'tracks') %}
+      {% if tracks %}
+      {% for track in tracks[:10] %}
+      {{ loop.index }}. **[{{ track.track_name }}]({{ track.track_url }})**  
+         *{{ track.artist_name }}* - {{ track.album_name }}  
+         {{ as_timestamp(track.played_at) | timestamp_custom('%I:%M %p') }}
+      {% endfor %}
+      {% else %}
+      No recent tracks
+      {% endif %}
+
+  # Top Artists
+  - type: markdown
+    title: Top Artists (4 Weeks)
+    content: |
+      {% set artists = state_attr('sensor.ian_spotify_stats_top_artists_4weeks', 'artists') %}
+      {% if artists %}
+      {% for artist in artists[:10] %}
+      {{ loop.index }}. [{{ artist.name }}]({{ artist.url }})
+      {% endfor %}
+      {% else %}
+      No data available
+      {% endif %}
+
+  # Top Tracks
+  - type: markdown
+    title: Top Tracks (4 Weeks)
+    content: |
+      {% set tracks = state_attr('sensor.ian_spotify_stats_top_tracks_4weeks', 'tracks') %}
+      {% if tracks %}
+      {% for track in tracks[:10] %}
+      {{ loop.index }}. **[{{ track.name }}]({{ track.url }})**  
+         *{{ track.artist_name }}*
+      {% endfor %}
+      {% else %}
+      No data available
+      {% endif %}
+
+  # Stats Summary
+  - type: entities
+    title: Statistics Summary
+    entities:
+      - entity: sensor.ian_spotify_stats_followed_artists
+        name: Followed Artists
+        icon: mdi:account-music
+      - entity: sensor.ian_spotify_stats_top_artists_4weeks
+        name: Top Artists (4 Weeks)
+        icon: mdi:trophy
+      - entity: sensor.ian_spotify_stats_top_artists_6months
+        name: Top Artists (6 Months)
+        icon: mdi:trophy-variant
+      - entity: sensor.ian_spotify_stats_top_artists_alltime
+        name: Top Artists (All Time)
+        icon: mdi:trophy-award
+
+  # Household Comparison
+  - type: horizontal-stack
+    cards:
+      - type: entity
+        entity: sensor.ian_spotify_stats_followed_artists
+        name: Ian
+        icon: mdi:account-music
+      - type: entity
+        entity: sensor.sal_spotify_stats_followed_artists
+        name: Sal
+        icon: mdi:account-music
+
+  # Export Services Buttons
+  - type: entities
+    title: Data Export
+    entities:
+      - type: button
+        name: Export Followed Artists
+        tap_action:
+          action: call-service
+          service: spotify_stats.export_followed_artists
+          service_data:
+            username: ian
+            filepath: /config/www/spotify/ian_followed_artists.json
+        icon: mdi:account-music
+      - type: button
+        name: Export Listening History
+        tap_action:
+          action: call-service
+          service: spotify_stats.export_recently_played_csv
+          service_data:
+            username: ian
+            filepath: /config/www/spotify/ian_listening_history.csv
+            append: true
+        icon: mdi:history
+      - type: button
+        name: Export Library
+        tap_action:
+          action: call-service
+          service: spotify_stats.export_saved_library
+          service_data:
+            username: ian
+            filepath: /config/www/spotify/ian_library.json
+        icon: mdi:bookshelf
+      - type: button
+        name: Refresh Now Playing
+        tap_action:
+          action: call-service
+          service: spotify_stats.refresh_now_playing
+          service_data:
+            username: ian
+        icon: mdi:refresh
+
+  # Advanced: Using custom:auto-entities (requires card)
+  - type: custom:auto-entities
+    card:
+      type: entities
+      title: All Spotify Sensors
+    filter:
+      include:
+        - entity_id: "sensor.*_spotify_*"
+
+  # Advanced: Graphing with ApexCharts (requires card)
+  - type: custom:apexcharts-card
+    title: Listening Activity
+    header:
+      show: true
+    graph_span: 7d
+    series:
+      - entity: sensor.ian_spotify_stats_recently_played
+        name: Tracks Played
+        type: column
+        group_by:
+          func: count
+          duration: 1d
+
+  # Markdown with file download links
+  - type: markdown
+    title: Export Files
+    content: |
+      ### Available Exports
+      - [Listening History CSV](/local/spotify/ian_listening_history.csv)
+      - [Followed Artists JSON](/local/spotify/ian_followed_artists.json)
+      - [Library JSON](/local/spotify/ian_library.json)
+      - [Playlists JSON](/local/spotify/ian_playlists.json)
+
+  # Progress bar for current track
+  - type: conditional
+    conditions:
+      - entity: sensor.ian_spotify_stats_now_playing
+        state: "playing"
+    card:
+      type: markdown
+      content: |
+        {% set progress = state_attr('sensor.ian_spotify_stats_now_playing', 'progress_ms') | int %}
+        {% set duration = state_attr('sensor.ian_spotify_stats_now_playing', 'duration_ms') | int %}
+        {% set percent = (progress / duration * 100) | round(0) %}
+        
+        **{{ state_attr('sensor.ian_spotify_stats_now_playing', 'track_name') }}**  
+        *{{ state_attr('sensor.ian_spotify_stats_now_playing', 'artist_name') }}*
+        
+        Progress: {{ percent }}%  
+        {{ (progress / 1000 / 60) | round(0) }}:{{ '%02d' | format((progress / 1000) % 60) }} / {{ (duration / 1000 / 60) | round(0) }}:{{ '%02d' | format((duration / 1000) % 60) }}

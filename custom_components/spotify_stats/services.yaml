@@ -1,0 +1,174 @@
+export_followed_artists:
+  name: Export Followed Artists
+  description: Export all followed artists with complete metadata to JSON file.
+  fields:
+    username:
+      name: Username
+      description: Spotify username to export data for.
+      required: true
+      example: "ian"
+      selector:
+        text:
+    filepath:
+      name: File Path
+      description: Absolute path to save the JSON file.
+      required: true
+      example: "/config/www/spotify/ian_followed_artists.json"
+      selector:
+        text:
+
+export_saved_library:
+  name: Export Saved Library
+  description: Export saved albums and tracks with complete metadata to JSON file.
+  fields:
+    username:
+      name: Username
+      description: Spotify username to export data for.
+      required: true
+      example: "ian"
+      selector:
+        text:
+    filepath:
+      name: File Path
+      description: Absolute path to save the JSON file.
+      required: true
+      example: "/config/www/spotify/ian_saved_library.json"
+      selector:
+        text:
+
+export_playlists:
+  name: Export Playlists
+  description: Export all playlists with full track listings to JSON file.
+  fields:
+    username:
+      name: Username
+      description: Spotify username to export data for.
+      required: true
+      example: "ian"
+      selector:
+        text:
+    filepath:
+      name: File Path
+      description: Absolute path to save the JSON file.
+      required: true
+      example: "/config/www/spotify/ian_playlists.json"
+      selector:
+        text:
+
+export_recently_played_csv:
+  name: Export Recently Played to CSV
+  description: Export recently played tracks to CSV for long-term tracking.
+  fields:
+    username:
+      name: Username
+      description: Spotify username to export data for.
+      required: true
+      example: "ian"
+      selector:
+        text:
+    filepath:
+      name: File Path
+      description: Absolute path to save the CSV file.
+      required: true
+      example: "/config/www/spotify/ian_listening_history.csv"
+      selector:
+        text:
+    append:
+      name: Append Mode
+      description: Append to existing file (prevents duplicates).
+      required: false
+      default: true
+      selector:
+        boolean:
+    include_audio_features:
+      name: Include Audio Features
+      description: Fetch audio analysis data (danceability, energy, etc.). This is slower.
+      required: false
+      default: false
+      selector:
+        boolean:
+
+export_top_stats_csv:
+  name: Export Top Stats to CSV
+  description: Export top artists or tracks snapshot to CSV.
+  fields:
+    username:
+      name: Username
+      description: Spotify username to export data for.
+      required: true
+      example: "ian"
+      selector:
+        text:
+    filepath:
+      name: File Path
+      description: Absolute path to save the CSV file.
+      required: true
+      example: "/config/www/spotify/stats/ian_top_artists_202502.csv"
+      selector:
+        text:
+    entity_type:
+      name: Entity Type
+      description: Export artists or tracks.
+      required: true
+      selector:
+        select:
+          options:
+            - "artists"
+            - "tracks"
+    time_range:
+      name: Time Range
+      description: Time period for top stats.
+      required: true
+      selector:
+        select:
+          options:
+            - label: "4 Weeks"
+              value: "short_term"
+            - label: "6 Months"
+              value: "medium_term"
+            - label: "All Time"
+              value: "long_term"
+
+set_update_interval:
+  name: Set Update Interval
+  description: Dynamically adjust update intervals for a user's sensors.
+  fields:
+    username:
+      name: Username
+      description: Spotify username to update intervals for.
+      required: true
+      example: "ian"
+      selector:
+        text:
+    now_playing_interval:
+      name: Now Playing Interval
+      description: Update interval in seconds for now playing sensor (30-300).
+      required: false
+      selector:
+        number:
+          min: 30
+          max: 300
+          step: 10
+          unit_of_measurement: "seconds"
+    recently_played_interval:
+      name: Recently Played Interval
+      description: Update interval in seconds for recently played sensor (300-3600).
+      required: false
+      selector:
+        number:
+          min: 300
+          max: 3600
+          step: 60
+          unit_of_measurement: "seconds"
+
+refresh_now_playing:
+  name: Refresh Now Playing
+  description: Immediately refresh the now playing sensor for a user.
+  fields:
+    username:
+      name: Username
+      description: Spotify username to refresh.
+      required: true
+      example: "ian"
+      selector:
+        text:

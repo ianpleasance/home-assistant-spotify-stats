@@ -1,0 +1,38 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Spotify Statistics Setup",
+        "description": "Configure your Spotify account for statistics tracking. You'll need API credentials from the Spotify Developer Dashboard.",
+        "data": {
+          "username": "Spotify Username",
+          "client_id": "Client ID",
+          "client_secret": "Client Secret",
+          "now_playing_interval": "Now Playing Update Interval (seconds)",
+          "recently_played_interval": "Recently Played Update Interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "already_configured": "This username is already configured.",
+      "cannot_connect": "Failed to connect to Spotify.",
+      "invalid_auth": "Invalid authentication credentials.",
+      "unknown": "An unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "This Spotify account is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Update Spotify Statistics Options",
+        "description": "Adjust update intervals for this account.",
+        "data": {
+          "now_playing_interval": "Now Playing Update Interval (seconds)",
+          "recently_played_interval": "Recently Played Update Interval (seconds)"
+        }
+      }
+    }
+  }
+}
