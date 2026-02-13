@@ -12,8 +12,6 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import config_entry_oauth2_flow
 
 from .const import (
-    CONF_CLIENT_ID,
-    CONF_CLIENT_SECRET,
     CONF_NOW_PLAYING_INTERVAL,
     CONF_RECENTLY_PLAYED_INTERVAL,
     CONF_USERNAME,
@@ -35,67 +33,85 @@ def sanitize_username(username: str) -> str:
     return username.lower().replace(" ", "_").replace("-", "_")
 
 
-class SpotifyStatsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class SpotifyStatsFlowHandler(
+    config_entry_oauth2_flow.AbstractOAuth2FlowHandler, domain=DOMAIN
+):
     """Handle a config flow for Spotify Statistics."""
 
+    DOMAIN = DOMAIN
     VERSION = 1
 
     def __init__(self) -> None:
         """Initialize the config flow."""
+        super().__init__()
         self._username: str | None = None
-        self._client_id: str | None = None
-        self._client_secret: str | None = None
         self._now_playing_interval: int = DEFAULT_NOW_PLAYING_INTERVAL
         self._recently_played_interval: int = DEFAULT_RECENTLY_PLAYED_INTERVAL
+
+    @property
+    def logger(self) -> logging.Logger:
+        """Return logger."""
+        return _LOGGER
+
+    @property
+    def extra_authorize_data(self) -> dict[str, Any]:
+        """Extra data that needs to be appended to the authorize url."""
+        return {"scope": " ".join(SPOTIFY_SCOPES)}
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle the initial step."""
-        errors: dict[str, str] = {}
-
+        """Handle a flow initialized by the user."""
+        # Use Spotify's OAuth implementation from the main spotify integration
+        implementations = await config_entry_oauth2_flow.async_get_implementations(
+            self.hass, "spotify"  # Use spotify domain, not our domain
+        )
+        
+        if not implementations:
+            return self.async_abort(
+                reason="missing_configuration",
+                description_placeholders={
+                    "docs_url": "https://www.home-assistant.io/integrations/spotify/"
+                }
+            )
+        
+        # Register Spotify's implementation for our domain
+        for impl_domain, impl in implementations.items():
+            config_entry_oauth2_flow.async_register_implementation(
+                self.hass,
+                self.DOMAIN,
+                impl,
+            )
+            _LOGGER.info("Registered Spotify OAuth implementation: %s", impl_domain)
+        
         if user_input is not None:
-            # Validate username uniqueness
-            username = sanitize_username(user_input[CONF_USERNAME])
+            # Store username and intervals
+            self._username = user_input[CONF_USERNAME]
+            self._now_playing_interval = user_input.get(
+                CONF_NOW_PLAYING_INTERVAL, DEFAULT_NOW_PLAYING_INTERVAL
+            )
+            self._recently_played_interval = user_input.get(
+                CONF_RECENTLY_PLAYED_INTERVAL, DEFAULT_RECENTLY_PLAYED_INTERVAL
+            )
             
+            # Check if username already exists
+            username = sanitize_username(self._username)
             existing_usernames = [
-                sanitize_username(entry.data[CONF_USERNAME])
+                sanitize_username(entry.data.get(CONF_USERNAME, ""))
                 for entry in self._async_current_entries()
             ]
             
             if username in existing_usernames:
-                errors["username"] = "already_configured"
-            else:
-                # Store credentials and proceed to OAuth
-                self._username = user_input[CONF_USERNAME]
-                self._client_id = user_input[CONF_CLIENT_ID]
-                self._client_secret = user_input[CONF_CLIENT_SECRET]
-                self._now_playing_interval = user_input.get(
-                    CONF_NOW_PLAYING_INTERVAL, DEFAULT_NOW_PLAYING_INTERVAL
-                )
-                self._recently_played_interval = user_input.get(
-                    CONF_RECENTLY_PLAYED_INTERVAL, DEFAULT_RECENTLY_PLAYED_INTERVAL
-                )
-                
-                # Create entry
-                return self.async_create_entry(
-                    title=f"Spotify Stats ({self._username})",
-                    data={
-                        CONF_USERNAME: self._username,
-                        CONF_CLIENT_ID: self._client_id,
-                        CONF_CLIENT_SECRET: self._client_secret,
-                        CONF_NOW_PLAYING_INTERVAL: self._now_playing_interval,
-                        CONF_RECENTLY_PLAYED_INTERVAL: self._recently_played_interval,
-                    },
-                )
+                return self.async_abort(reason="already_configured")
+            
+            # Continue to OAuth step
+            return await self.async_step_pick_implementation()
 
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
                 {
                     vol.Required(CONF_USERNAME): str,
-                    vol.Required(CONF_CLIENT_ID): str,
-                    vol.Required(CONF_CLIENT_SECRET): str,
                     vol.Optional(
                         CONF_NOW_PLAYING_INTERVAL,
                         default=DEFAULT_NOW_PLAYING_INTERVAL,
@@ -118,11 +134,23 @@ class SpotifyStatsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     ),
                 }
             ),
-            errors=errors,
             description_placeholders={
-                "username_help": "Your Spotify username or display name (e.g., 'ian')",
-                "interval_help": "Update intervals in seconds",
+                "username_help": "Your Spotify username (e.g., 'planetbuilders')",
             },
+        )
+
+    async def async_oauth_create_entry(self, data: dict[str, Any]) -> FlowResult:
+        """Create an entry for the flow."""
+        _LOGGER.info("async_oauth_create_entry called for user: %s", self._username)
+        
+        # Combine OAuth data with our stored values
+        data[CONF_USERNAME] = self._username
+        data[CONF_NOW_PLAYING_INTERVAL] = self._now_playing_interval
+        data[CONF_RECENTLY_PLAYED_INTERVAL] = self._recently_played_interval
+        
+        return self.async_create_entry(
+            title=f"Spotify Stats ({self._username})",
+            data=data,
         )
 
     @staticmethod
@@ -146,8 +174,16 @@ class SpotifyStatsOptionsFlowHandler(config_entries.OptionsFlow):
     ) -> FlowResult:
         """Manage the options."""
         if user_input is not None:
-            # Update the config entry with new options
-            return self.async_create_entry(title="", data=user_input)
+            new_data = dict(self.config_entry.data)
+            new_data[CONF_NOW_PLAYING_INTERVAL] = user_input[CONF_NOW_PLAYING_INTERVAL]
+            new_data[CONF_RECENTLY_PLAYED_INTERVAL] = user_input[CONF_RECENTLY_PLAYED_INTERVAL]
+            
+            self.hass.config_entries.async_update_entry(
+                self.config_entry,
+                data=new_data,
+            )
+            
+            return self.async_create_entry(title="", data={})
 
         return self.async_show_form(
             step_id="init",

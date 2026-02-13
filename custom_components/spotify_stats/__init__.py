@@ -18,13 +18,61 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 
 
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+    """Set up the Spotify Statistics component."""
+    return True
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Spotify Statistics from a config entry."""
     _LOGGER.debug("Setting up Spotify Statistics for user: %s", entry.data.get("username"))
 
     try:
+        # Wait for Spotify integration to be ready
+        await hass.config_entries.async_wait_component(entry)
+        
+        # Get OAuth2 session - try to get implementation
+        try:
+            implementation = (
+                await config_entry_oauth2_flow.async_get_config_entry_implementation(
+                    hass, entry
+                )
+            )
+        except ValueError:
+            # Implementation not found - register from spotify domain
+            _LOGGER.debug("OAuth implementation not found, registering from spotify domain")
+            spotify_implementations = await config_entry_oauth2_flow.async_get_implementations(
+                hass, "spotify"
+            )
+            
+            if not spotify_implementations:
+                _LOGGER.error("Spotify integration not configured. Please set up the Spotify integration first.")
+                raise ConfigEntryNotReady("Spotify integration not configured")
+            
+            # Register the first available implementation for our domain
+            for impl_domain, impl in spotify_implementations.items():
+                config_entry_oauth2_flow.async_register_implementation(
+                    hass,
+                    DOMAIN,
+                    impl,
+                )
+                _LOGGER.info("Registered Spotify OAuth implementation: %s", impl_domain)
+                break
+            
+            # Now get the implementation
+            implementation = (
+                await config_entry_oauth2_flow.async_get_config_entry_implementation(
+                    hass, entry
+                )
+            )
+        
+        _LOGGER.debug("Got OAuth2 implementation: %s", implementation)
+        
+        session = config_entry_oauth2_flow.OAuth2Session(hass, entry, implementation)
+        _LOGGER.debug("Created OAuth2 session")
+        
         # Create coordinator for this user
-        coordinator = SpotifyStatsCoordinator(hass, entry)
+        coordinator = SpotifyStatsCoordinator(hass, entry, session)
         
         # Fetch initial data
         await coordinator.async_config_entry_first_refresh()
@@ -49,7 +97,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER.error("Authentication failed for user %s: %s", entry.data.get("username"), err)
         raise
     except Exception as err:
-        _LOGGER.error("Error setting up Spotify Statistics for user %s: %s", entry.data.get("username"), err)
+        _LOGGER.error("Error setting up Spotify Statistics for user %s: %s", entry.data.get("username"), err, exc_info=True)
         raise ConfigEntryNotReady from err
 
 

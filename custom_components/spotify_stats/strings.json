@@ -2,37 +2,47 @@
   "config": {
     "step": {
       "user": {
-        "title": "Spotify Statistics Setup",
-        "description": "Configure your Spotify account for statistics tracking. You'll need API credentials from the Spotify Developer Dashboard.",
+        "title": "Set up Spotify Statistics",
+        "description": "Enter your Spotify username and polling intervals. After submitting, you'll be redirected to Spotify to authorize access.",
         "data": {
           "username": "Spotify Username",
-          "client_id": "Client ID",
-          "client_secret": "Client Secret",
           "now_playing_interval": "Now Playing Update Interval (seconds)",
           "recently_played_interval": "Recently Played Update Interval (seconds)"
+        },
+        "data_description": {
+          "username": "Your Spotify username (e.g., 'planetbuilders')",
+          "now_playing_interval": "How often to check what's currently playing (30-300 seconds)",
+          "recently_played_interval": "How often to check recently played tracks (300-3600 seconds)"
         }
+      },
+      "pick_implementation": {
+        "title": "Select Authentication Method"
       }
     },
     "error": {
-      "already_configured": "This username is already configured.",
-      "cannot_connect": "Failed to connect to Spotify.",
-      "invalid_auth": "Invalid authentication credentials.",
-      "unknown": "An unexpected error occurred."
+      "cannot_connect": "Failed to connect to Spotify",
+      "invalid_auth": "Invalid authentication",
+      "unknown": "Unexpected error occurred"
     },
     "abort": {
-      "already_configured": "This Spotify account is already configured."
+      "already_configured": "This Spotify account is already configured",
+      "missing_credentials": "Application Credentials not configured. Please go to Settings → Devices & Services → Application Credentials (⋮ menu, top right) and add your Spotify Client ID and Client Secret first. Then restart Home Assistant and try again.",
+      "oauth_error": "OAuth authorization failed. Please try again."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Update Spotify Statistics Options",
-        "description": "Adjust update intervals for this account.",
+        "title": "Spotify Statistics Options",
+        "description": "Update polling intervals for this account.",
         "data": {
           "now_playing_interval": "Now Playing Update Interval (seconds)",
           "recently_played_interval": "Recently Played Update Interval (seconds)"
         }
       }
     }
+  },
+  "application_credentials": {
+    "description": "Follow the [Spotify Developer Dashboard setup instructions]({oauth_url}) to create an application and get your Client ID and Client Secret. Use this redirect URI: **{redirect_uri}**"
   }
 }

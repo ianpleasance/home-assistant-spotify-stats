@@ -40,6 +40,12 @@ SENSOR_TOP_ARTISTS_ALLTIME = "top_artists_alltime"
 SENSOR_TOP_TRACKS_4WEEKS = "top_tracks_4weeks"
 SENSOR_TOP_TRACKS_6MONTHS = "top_tracks_6months"
 SENSOR_TOP_TRACKS_ALLTIME = "top_tracks_alltime"
+SENSOR_USER_PLAYLISTS = "user_playlists"
+SENSOR_SAVED_TRACKS = "saved_tracks"
+SENSOR_SAVED_ALBUMS = "saved_albums"
+SENSOR_USER_PLAYLISTS = "user_playlists"
+SENSOR_SAVED_TRACKS = "saved_tracks"
+SENSOR_SAVED_ALBUMS = "saved_albums"
 
 # Time ranges for top stats
 TIME_RANGE_SHORT = "short_term"  # 4 weeks

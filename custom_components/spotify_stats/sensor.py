@@ -18,12 +18,15 @@ from .const import (
     SENSOR_FOLLOWED_ARTISTS,
     SENSOR_NOW_PLAYING,
     SENSOR_RECENTLY_PLAYED,
+    SENSOR_SAVED_ALBUMS,
+    SENSOR_SAVED_TRACKS,
     SENSOR_TOP_ARTISTS_4WEEKS,
     SENSOR_TOP_ARTISTS_6MONTHS,
     SENSOR_TOP_ARTISTS_ALLTIME,
     SENSOR_TOP_TRACKS_4WEEKS,
     SENSOR_TOP_TRACKS_6MONTHS,
     SENSOR_TOP_TRACKS_ALLTIME,
+    SENSOR_USER_PLAYLISTS,
 )
 from .coordinator import SpotifyStatsCoordinator
 
@@ -54,6 +57,9 @@ async def async_setup_entry(
         SpotifyTopTracksSensor(coordinator, username, "4weeks"),
         SpotifyTopTracksSensor(coordinator, username, "6months"),
         SpotifyTopTracksSensor(coordinator, username, "alltime"),
+        SpotifyUserPlaylistsSensor(coordinator, username),
+        SpotifySavedTracksSensor(coordinator, username),
+        SpotifySavedAlbumsSensor(coordinator, username),
     ]
     
     async_add_entities(sensors)
@@ -237,4 +243,79 @@ class SpotifyTopTracksSensor(SpotifyStatsBaseSensor):
         return {
             "period": data.get("period"),
             "tracks": data.get("tracks", []),
+        }
+
+
+class SpotifyUserPlaylistsSensor(SpotifyStatsBaseSensor):
+    """Sensor for user playlists."""
+
+    def __init__(self, coordinator: SpotifyStatsCoordinator, username: str) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, username)
+        self._attr_name = f"{username} Spotify Stats Playlists"
+        self._attr_unique_id = f"{self._sanitized_username}_spotify_stats_playlists"
+        self._attr_icon = "mdi:playlist-music"
+
+    @property
+    def native_value(self) -> int:
+        """Return the count of playlists."""
+        data = self.coordinator.data.get(SENSOR_USER_PLAYLISTS, {})
+        return data.get("count", 0)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional attributes."""
+        data = self.coordinator.data.get(SENSOR_USER_PLAYLISTS, {})
+        return {
+            "playlists": data.get("playlists", []),
+        }
+
+
+class SpotifySavedTracksSensor(SpotifyStatsBaseSensor):
+    """Sensor for saved tracks."""
+
+    def __init__(self, coordinator: SpotifyStatsCoordinator, username: str) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, username)
+        self._attr_name = f"{username} Spotify Stats Saved Tracks"
+        self._attr_unique_id = f"{self._sanitized_username}_spotify_stats_saved_tracks"
+        self._attr_icon = "mdi:heart"
+
+    @property
+    def native_value(self) -> int:
+        """Return the count of saved tracks."""
+        data = self.coordinator.data.get(SENSOR_SAVED_TRACKS, {})
+        return data.get("count", 0)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional attributes."""
+        data = self.coordinator.data.get(SENSOR_SAVED_TRACKS, {})
+        return {
+            "tracks": data.get("tracks", []),
+        }
+
+
+class SpotifySavedAlbumsSensor(SpotifyStatsBaseSensor):
+    """Sensor for saved albums."""
+
+    def __init__(self, coordinator: SpotifyStatsCoordinator, username: str) -> None:
+        """Initialize the sensor."""
+        super().__init__(coordinator, username)
+        self._attr_name = f"{username} Spotify Stats Saved Albums"
+        self._attr_unique_id = f"{self._sanitized_username}_spotify_stats_saved_albums"
+        self._attr_icon = "mdi:album"
+
+    @property
+    def native_value(self) -> int:
+        """Return the count of saved albums."""
+        data = self.coordinator.data.get(SENSOR_SAVED_ALBUMS, {})
+        return data.get("count", 0)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional attributes."""
+        data = self.coordinator.data.get(SENSOR_SAVED_ALBUMS, {})
+        return {
+            "albums": data.get("albums", []),
         }

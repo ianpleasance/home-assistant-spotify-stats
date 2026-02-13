@@ -12,6 +12,7 @@ import voluptuous as vol
 
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
+from homeassistant.util import dt as dt_util
 
 from .const import (
     ATTR_APPEND,
@@ -124,8 +125,11 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         username = call.data[ATTR_USERNAME]
         filepath = call.data[ATTR_FILEPATH]
         
+        _LOGGER.info("Export followed artists called - username: %s, filepath: %s", username, filepath)
+        
         coordinator = get_coordinator_for_username(hass, username)
         if not coordinator:
+            _LOGGER.error("No coordinator found for username: %s", username)
             return
         
         try:
@@ -133,33 +137,48 @@ async def async_setup_services(hass: HomeAssistant) -> None:
             followed_data = coordinator.data.get("followed_artists", {})
             all_artists = followed_data.get("all_artists", [])
             
+            _LOGGER.debug("Found %s followed artists in coordinator data", len(all_artists))
+            
+            if not all_artists:
+                _LOGGER.warning("No followed artists data available for %s", username)
+                return
+            
+            # Make filepath absolute if it's not
+            if not os.path.isabs(filepath):
+                filepath = os.path.join(hass.config.config_dir, filepath)
+            
+            _LOGGER.debug("Using absolute filepath: %s", filepath)
+            
             # Fetch complete metadata for all artists
             artists_full = await hass.async_add_executor_job(
                 _fetch_all_artists_metadata, coordinator.sp, all_artists
             )
             
             export_data = {
-                "exported_at": hass.helpers.utcnow().isoformat(),
+                "exported_at": dt_util.utcnow().isoformat(),
                 "username": username,
                 "total_count": len(artists_full),
                 "artists": artists_full,
             }
             
             # Ensure directory exists
-            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+            directory = os.path.dirname(filepath)
+            if directory:
+                os.makedirs(directory, exist_ok=True)
+                _LOGGER.debug("Created directory: %s", directory)
             
             # Write JSON
             with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(export_data, f, indent=2, ensure_ascii=False)
             
             _LOGGER.info(
-                "Exported %s followed artists for %s to %s",
+                "Successfully exported %s followed artists for %s to %s",
                 len(artists_full),
                 username,
                 filepath,
             )
         except Exception as err:
-            _LOGGER.error("Failed to export followed artists: %s", err)
+            _LOGGER.error("Failed to export followed artists: %s", err, exc_info=True)
 
     async def export_saved_library(call: ServiceCall) -> None:
         """Export saved albums and tracks to JSON."""
@@ -176,7 +195,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
             )
             
             export_data = {
-                "exported_at": hass.helpers.utcnow().isoformat(),
+                "exported_at": dt_util.utcnow().isoformat(),
                 "username": username,
                 "albums": library_data["albums"],
                 "tracks": library_data["tracks"],
@@ -204,37 +223,47 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         username = call.data[ATTR_USERNAME]
         filepath = call.data[ATTR_FILEPATH]
         
+        _LOGGER.info("Export playlists called - username: %s, filepath: %s", username, filepath)
+        
         coordinator = get_coordinator_for_username(hass, username)
         if not coordinator:
+            _LOGGER.error("No coordinator found for username: %s", username)
             return
         
         try:
+            # Make filepath absolute if it's not
+            if not os.path.isabs(filepath):
+                filepath = os.path.join(hass.config.config_dir, filepath)
+            
+            _LOGGER.debug("Fetching playlists via API")
             playlists_data = await hass.async_add_executor_job(
                 _fetch_playlists, coordinator.sp
             )
             
             export_data = {
-                "exported_at": hass.helpers.utcnow().isoformat(),
+                "exported_at": dt_util.utcnow().isoformat(),
                 "username": username,
                 "total_count": len(playlists_data),
                 "playlists": playlists_data,
             }
             
             # Ensure directory exists
-            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+            directory = os.path.dirname(filepath)
+            if directory:
+                os.makedirs(directory, exist_ok=True)
             
             # Write JSON
             with open(filepath, "w", encoding="utf-8") as f:
                 json.dump(export_data, f, indent=2, ensure_ascii=False)
             
             _LOGGER.info(
-                "Exported %s playlists for %s to %s",
+                "Successfully exported %s playlists for %s to %s",
                 len(playlists_data),
                 username,
                 filepath,
             )
         except Exception as err:
-            _LOGGER.error("Failed to export playlists: %s", err)
+            _LOGGER.error("Failed to export playlists: %s", err, exc_info=True)
 
     async def export_recently_played_csv(call: ServiceCall) -> None:
         """Export recently played tracks to CSV."""
@@ -396,7 +425,7 @@ async def async_setup_services(hass: HomeAssistant) -> None:
                 writer = csv.DictWriter(f, fieldnames=columns)
                 writer.writeheader()
                 
-                export_date = hass.helpers.utcnow().date().isoformat()
+                export_date = dt_util.utcnow().date().isoformat()
                 
                 for item in items:
                     row = {
@@ -584,9 +613,32 @@ def _fetch_playlists(sp) -> list[dict]:
         results = sp.current_user_playlists(limit=50, offset=offset)
         
         for playlist in results["items"]:
-            # Fetch full playlist with tracks
-            full_playlist = sp.playlist(playlist["id"])
-            playlists.append(full_playlist)
+            try:
+                # Fetch full playlist with tracks
+                full_playlist = sp.playlist(playlist["id"])
+                playlists.append(full_playlist)
+            except spotipy.exceptions.SpotifyException as err:
+                if err.http_status == 404:
+                    _LOGGER.warning(
+                        "Playlist %s (%s) not found (deleted or private), skipping",
+                        playlist["name"],
+                        playlist["id"],
+                    )
+                    # Add basic info without tracks
+                    playlists.append({
+                        "id": playlist["id"],
+                        "name": playlist["name"],
+                        "owner": playlist["owner"],
+                        "tracks": {"total": playlist["tracks"]["total"]},
+                        "public": playlist.get("public"),
+                        "collaborative": playlist.get("collaborative"),
+                        "external_urls": playlist.get("external_urls", {}),
+                        "note": "Unable to fetch full details (404 error)",
+                    })
+                else:
+                    _LOGGER.error("Error fetching playlist %s: %s", playlist["id"], err)
+            except Exception as err:
+                _LOGGER.error("Unexpected error fetching playlist %s: %s", playlist["id"], err)
         
         if not results["next"]:
             break
