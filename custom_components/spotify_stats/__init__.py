@@ -41,13 +41,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         except ValueError:
             # Implementation not found - register from spotify domain
             _LOGGER.debug("OAuth implementation not found, registering from spotify domain")
-            spotify_implementations = await config_entry_oauth2_flow.async_get_implementations(
-                hass, "spotify"
-            )
+            
+            try:
+                spotify_implementations = await config_entry_oauth2_flow.async_get_implementations(
+                    hass, "spotify"
+                )
+            except Exception as err:
+                _LOGGER.warning("Failed to get Spotify implementations: %s", err)
+                raise ConfigEntryNotReady("Waiting for Spotify integration to be ready") from err
             
             if not spotify_implementations:
-                _LOGGER.error("Spotify integration not configured. Please set up the Spotify integration first.")
-                raise ConfigEntryNotReady("Spotify integration not configured")
+                _LOGGER.warning("Spotify integration not configured or not ready yet")
+                raise ConfigEntryNotReady("Spotify integration not configured. Please set up the Spotify integration first.")
             
             # Register the first available implementation for our domain
             for impl_domain, impl in spotify_implementations.items():
@@ -60,11 +65,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 break
             
             # Now get the implementation
-            implementation = (
-                await config_entry_oauth2_flow.async_get_config_entry_implementation(
-                    hass, entry
+            try:
+                implementation = (
+                    await config_entry_oauth2_flow.async_get_config_entry_implementation(
+                        hass, entry
+                    )
                 )
-            )
+            except ValueError as err:
+                _LOGGER.warning("Still cannot get implementation after registration")
+                raise ConfigEntryNotReady("OAuth implementation not ready, will retry") from err
         
         _LOGGER.debug("Got OAuth2 implementation: %s", implementation)
         

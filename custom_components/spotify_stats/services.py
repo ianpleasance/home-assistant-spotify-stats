@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 from typing import Any
 
+import spotipy
 import voluptuous as vol
 
 from homeassistant.core import HomeAssistant, ServiceCall

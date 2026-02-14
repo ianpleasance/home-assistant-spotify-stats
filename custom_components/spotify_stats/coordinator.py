@@ -467,9 +467,12 @@ class SpotifyStatsCoordinator(DataUpdateCoordinator):
             
             _LOGGER.debug("_fetch_saved_tracks: Total %s tracks, fetched %s", total_count, len(tracks))
             
+            # Store only first 20 in attributes to avoid database size issues
+            tracks_for_attributes = tracks[:20]
+            
             return {
                 "count": total_count,
-                "tracks": tracks,  # First 50
+                "tracks": tracks_for_attributes,
             }
         except Exception as err:
             _LOGGER.error("_fetch_saved_tracks: Error: %s", err, exc_info=True)
@@ -499,15 +502,17 @@ class SpotifyStatsCoordinator(DataUpdateCoordinator):
                     "uri": album["uri"],
                     "total_tracks": album["total_tracks"],
                     "release_date": album.get("release_date", ""),
-                    "images": album.get("images", []),
                     "added_at": item["added_at"],
                 })
             
             _LOGGER.debug("_fetch_saved_albums: Total %s albums, fetched %s", total_count, len(albums))
             
+            # Store only first 20 in attributes to avoid database size issues
+            albums_for_attributes = albums[:20]
+            
             return {
                 "count": total_count,
-                "albums": albums,  # First 50
+                "albums": albums_for_attributes,
             }
         except Exception as err:
             _LOGGER.error("_fetch_saved_albums: Error: %s", err, exc_info=True)

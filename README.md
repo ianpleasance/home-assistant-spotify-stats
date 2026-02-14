@@ -1,415 +1,310 @@
-# Spotify Statistics Integration for Home Assistant
+# Spotify Statistics for Home Assistant
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
-[![GitHub Release](https://img.shields.io/github/release/ianpleasance/home-assistant-spotify-stats.svg)](https://github.com/ianpleasance/home-assistant-spotify-stats/releases)
-[![License](https://img.shields.io/github/license/ianpleasance/home-assistant-spotify-stats.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![GitHub release](https://img.shields.io/github/release/ianpleasance/home-assistant-spotify-stats.svg)](https://github.com/ianpleasance/home-assistant-spotify-stats/releases)
 
-A comprehensive Home Assistant integration for tracking Spotify listening statistics, followed artists, playlists, and listening history across multiple user accounts.
+A comprehensive Home Assistant custom integration that tracks detailed Spotify listening statistics, including now playing, recently played tracks, top artists and tracks across multiple time ranges, followed artists, playlists, and saved library.
 
 ## Features
 
-- **Multi-User Support** - Track statistics for multiple Spotify accounts
-- **Real-Time Tracking**
-  - Currently playing track with full metadata
-  - Recently played tracks (last 50)
-  - Followed artists
-  - Top artists and tracks (4 weeks, 6 months, all-time)
-- **Data Export Services**
-  - Export followed artists to JSON
-  - Export saved library (albums & tracks) to JSON
-  - Export playlists with full track listings to JSON
-  - Export listening history to CSV with optional audio features
-  - Export top stats snapshots to CSV
-- **Configurable Update Intervals**
-  - Customize polling frequency per user
-  - Minimum 30 seconds for now playing
-  - Minimum 5 minutes for recently played
-- **Long-Term Analysis**
-  - CSV exports for historical tracking
-  - Automated backup capabilities
-  - Audio feature analysis (danceability, energy, etc.)
+### 📊 Rich Statistics Tracking
+
+- **Now Playing**: Real-time tracking of currently playing tracks
+- **Recently Played**: Last 50 tracks with timestamps
+- **Top Artists & Tracks**: Rankings across 3 time periods (4 weeks, 6 months, all-time)
+- **Followed Artists**: Complete list of artists you follow
+- **Playlists**: All your playlists with track counts and metadata
+- **Saved Library**: Your liked songs and saved albums
+
+### 🔄 Flexible Update Intervals
+
+- Configurable polling for now playing (30-300 seconds)
+- Configurable polling for recently played (300-3600 seconds)
+- Automatic daily updates for top stats and followed artists
+- Live updates for playlists and saved library
+
+### 📁 Data Export Services
+
+Seven export services to backup and analyze your data:
+
+- **Export Recently Played**: CSV export with optional audio features
+- **Export Top Stats**: Export top artists or tracks to CSV
+- **Export Followed Artists**: Complete list with genres and popularity
+- **Export Playlists**: Full playlist metadata including tracks
+- **Export Saved Library**: All saved tracks and albums
+- **Refresh Now Playing**: Force immediate update
+- **Set Update Intervals**: Dynamically adjust polling rates
+
+### 🎵 Multi-User Support
+
+Track statistics for multiple Spotify accounts independently with separate configurations per user.
+
+## Sensors
+
+The integration creates 12 sensors per configured user:
+
+| Sensor | Description | State | Attributes |
+|--------|-------------|-------|------------|
+| `now_playing` | Currently playing track | playing/paused/idle | Track details, artist, album, progress, etc. |
+| `recently_played` | Recent listening history | Last played timestamp | 50 most recent tracks with timestamps |
+| `followed_artists` | Artists you follow | Total count | First 20 artists with genres, popularity |
+| `top_artists_4weeks` | Top artists (4 weeks) | Count | Top 50 artists ranked by listening |
+| `top_artists_6months` | Top artists (6 months) | Count | Top 50 artists ranked by listening |
+| `top_artists_alltime` | Top artists (all time) | Count | Top 50 artists ranked by listening |
+| `top_tracks_4weeks` | Top tracks (4 weeks) | Count | Top 50 tracks ranked by listening |
+| `top_tracks_6months` | Top tracks (6 months) | Count | Top 50 tracks ranked by listening |
+| `top_tracks_alltime` | Top tracks (all time) | Count | Top 50 tracks ranked by listening |
+| `playlists` | Your playlists | Total count | First 20 playlists with metadata |
+| `saved_tracks` | Liked songs | Total count | First 20 recently added tracks |
+| `saved_albums` | Saved albums | Total count | First 20 recently added albums |
+
+**Note**: Due to Home Assistant's 16KB attribute size limit, playlist and library sensors show only the first 20 items in attributes, but export services provide complete data.
 
 ## Installation
 
-### HACS (Recommended)
+### Prerequisites
+
+1. **Spotify Developer Account**: Create an app at [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+2. **Spotify Premium**: Required for now playing functionality
+3. **Home Assistant Spotify Integration**: Must be installed and configured first
+
+### HACS Installation (Recommended)
 
 1. Open HACS in Home Assistant
-2. Click on "Integrations"
-3. Click the three dots in the top right corner
-4. Select "Custom repositories"
-5. Add this repository URL: `https://github.com/ianpleasance/home-assistant-spotify-stats`
-6. Select category: "Integration"
-7. Click "Add"
-8. Find "Spotify Statistics" in the integration list
-9. Click "Download"
-10. Restart Home Assistant
+2. Click the three dots in the top right corner
+3. Select "Custom repositories"
+4. Add this repository URL: `https://github.com/ianpleasance/home-assistant-spotify-stats`
+5. Select category: "Integration"
+6. Click "Add"
+7. Click "Install" on the Spotify Statistics card
+8. Restart Home Assistant
 
 ### Manual Installation
 
-1. Download the latest release from [GitHub releases](https://github.com/ianpleasance/home-assistant-spotify-stats/releases)
-2. Extract the `spotify_stats` folder to your `custom_components` directory
-3. Restart Home Assistant
-
-## Getting Spotify API Credentials
-
-Before you can configure the integration, you need to create a Spotify Developer application:
-
-1. **Go to Spotify Developer Dashboard**
-   - Visit [https://developer.spotify.com/dashboard](https://developer.spotify.com/dashboard)
-   - Log in with your Spotify account
-
-2. **Create a New App**
-   - Click "Create app"
-   - Fill in the form:
-     - **App name**: `Home Assistant Spotify Stats` (or any name you prefer)
-     - **App description**: `Integration for tracking Spotify statistics in Home Assistant`
-     - **Redirect URI**: `https://your-home-assistant-url/auth/external/callback`
-       - Replace `your-home-assistant-url` with your actual Home Assistant URL
-       - If using Nabu Casa: `https://abcdef1234567890.ui.nabu.casa/auth/external/callback`
-       - If using local URL: `http://homeassistant.local:8123/auth/external/callback`
-     - Check the "Web API" checkbox
-   - Accept the Terms of Service
-   - Click "Save"
-
-3. **Get Your Credentials**
-   - Click on your newly created app
-   - Click "Settings" in the top right
-   - You'll see:
-     - **Client ID** - Copy this
-     - **Client Secret** - Click "View client secret" and copy this
-   - Keep these credentials safe - you'll need them for configuration
-
-4. **Note Your Spotify Username**
-   - Go to your [Spotify account page](https://www.spotify.com/account/profile/)
-   - Your username is shown at the top (or use your display name)
+1. Copy the `custom_components/spotify_stats` directory to your Home Assistant `config/custom_components` directory
+2. Restart Home Assistant
 
 ## Configuration
 
-### Adding an Account
+### Step 1: Configure Spotify Integration
 
-1. Go to **Settings** → **Devices & Services**
-2. Click **Add Integration**
-3. Search for **Spotify Statistics**
-4. Enter the required information:
-   - **Username**: Your Spotify username or display name (e.g., "ian")
-   - **Client ID**: From your Spotify Developer app
-   - **Client Secret**: From your Spotify Developer app
-   - **Now Playing Update Interval**: Seconds between updates (default: 30, min: 30)
-   - **Recently Played Update Interval**: Seconds between updates (default: 300, min: 300)
+First, ensure the official Spotify integration is set up:
+
+1. Go to **Settings → Devices & Services → Add Integration**
+2. Search for and add **Spotify**
+3. Follow the OAuth flow to authorize
+
+### Step 2: Add Spotify Statistics
+
+1. Go to **Settings → Devices & Services → Add Integration**
+2. Search for **Spotify Statistics**
+3. Enter your **Spotify username** (e.g., `planetbuilders`)
+4. Set update intervals:
+   - **Now Playing Interval**: 30-300 seconds (default: 30)
+   - **Recently Played Interval**: 300-3600 seconds (default: 300)
 5. Click **Submit**
-6. You'll be redirected to Spotify to authorize the integration
-7. Grant the requested permissions
-8. You'll be redirected back to Home Assistant
+6. You'll be redirected to Spotify to authorize (reuses credentials from official integration)
+7. Click **Agree** on Spotify
+8. Done! Sensors will appear within seconds
 
-### Adding Multiple Accounts
+### Spotify Developer App Setup
 
-Repeat the configuration process for each Spotify account you want to track. Each account will have its own set of sensors and can have independent update intervals.
+Your Spotify app needs this redirect URI configured:
 
-### Adjusting Settings
+```
+https://your-home-assistant-url/auth/external/callback
+```
 
-After initial configuration, you can modify update intervals:
+Or if using Nabu Casa:
 
-1. Go to **Settings** → **Devices & Services**
-2. Find **Spotify Statistics** for the user you want to adjust
-3. Click **Configure**
-4. Adjust the intervals as needed
-5. Click **Submit**
-
-## Entities Created
-
-For each configured user (e.g., "ian"), the following sensors are created:
-
-### Sensors
-
-- `sensor.{username}_spotify_stats_followed_artists` - Count and list of followed artists
-- `sensor.{username}_spotify_stats_recently_played` - Last 50 played tracks
-- `sensor.{username}_spotify_stats_now_playing` - Currently playing track (state: playing/paused/idle)
-- `sensor.{username}_spotify_stats_top_artists_4weeks` - Top 50 artists, last 4 weeks
-- `sensor.{username}_spotify_stats_top_artists_6months` - Top 50 artists, last 6 months
-- `sensor.{username}_spotify_stats_top_artists_alltime` - Top 50 artists, all time
-- `sensor.{username}_spotify_stats_top_tracks_4weeks` - Top 50 tracks, last 4 weeks
-- `sensor.{username}_spotify_stats_top_tracks_6months` - Top 50 tracks, last 6 months
-- `sensor.{username}_spotify_stats_top_tracks_alltime` - Top 50 tracks, all time
-
-All sensors include detailed metadata in their attributes.
+```
+https://my.home-assistant.io/redirect/oauth
+```
 
 ## Services
 
-### Export Services
+### `spotify_stats.export_recently_played_csv`
 
-#### `spotify_stats.export_followed_artists`
-
-Export all followed artists with complete metadata to JSON.
-
-```yaml
-service: spotify_stats.export_followed_artists
-data:
-  username: "ian"
-  filepath: "/config/www/spotify/ian_followed_artists.json"
-```
-
-#### `spotify_stats.export_saved_library`
-
-Export saved albums and tracks with complete metadata to JSON.
-
-```yaml
-service: spotify_stats.export_saved_library
-data:
-  username: "ian"
-  filepath: "/config/www/spotify/ian_saved_library.json"
-```
-
-#### `spotify_stats.export_playlists`
-
-Export all playlists with full track listings to JSON.
-
-```yaml
-service: spotify_stats.export_playlists
-data:
-  username: "ian"
-  filepath: "/config/www/spotify/ian_playlists.json"
-```
-
-#### `spotify_stats.export_recently_played_csv`
-
-Export recently played tracks to CSV for long-term tracking.
+Export recently played tracks to CSV with optional audio features.
 
 ```yaml
 service: spotify_stats.export_recently_played_csv
 data:
-  username: "ian"
-  filepath: "/config/www/spotify/ian_listening_history.csv"
-  append: true  # Append to existing file (prevents duplicates)
-  include_audio_features: false  # Fetch audio analysis data (slower)
+  username: planetbuilders
+  filepath: /config/www/recently_played.csv
+  append: false
+  include_audio_features: true
 ```
 
-#### `spotify_stats.export_top_stats_csv`
+**Parameters**:
+- `username` (required): Spotify username
+- `filepath` (required): Path to save CSV file
+- `append` (optional): Append to existing file (default: false)
+- `include_audio_features` (optional): Include danceability, energy, tempo, etc. (default: false)
 
-Export top artists or tracks snapshot to CSV.
+### `spotify_stats.export_top_stats_csv`
+
+Export top artists or tracks to CSV.
 
 ```yaml
 service: spotify_stats.export_top_stats_csv
 data:
-  username: "ian"
-  filepath: "/config/www/spotify/stats/ian_top_artists_202502.csv"
-  entity_type: "artists"  # or "tracks"
-  time_range: "short_term"  # "short_term", "medium_term", or "long_term"
+  username: planetbuilders
+  filepath: /config/www/top_artists.csv
+  entity_type: artists
+  time_range: medium_term
 ```
 
-### Control Services
+**Parameters**:
+- `username` (required): Spotify username
+- `filepath` (required): Path to save CSV file
+- `entity_type` (required): `artists` or `tracks`
+- `time_range` (required): `short_term` (4 weeks), `medium_term` (6 months), or `long_term` (all time)
 
-#### `spotify_stats.set_update_interval`
+### `spotify_stats.export_followed_artists`
 
-Dynamically adjust update intervals for a user.
+Export complete list of followed artists to JSON.
 
 ```yaml
-service: spotify_stats.set_update_interval
+service: spotify_stats.export_followed_artists
 data:
-  username: "ian"
-  now_playing_interval: 60  # Optional
-  recently_played_interval: 600  # Optional
+  username: planetbuilders
+  filepath: /config/www/followed_artists.json
 ```
 
-#### `spotify_stats.refresh_now_playing`
+### `spotify_stats.export_playlists`
 
-Immediately refresh the now playing sensor.
+Export all playlists with full metadata to JSON.
+
+```yaml
+service: spotify_stats.export_playlists
+data:
+  username: planetbuilders
+  filepath: /config/www/playlists.json
+```
+
+**Note**: Skips deleted/inaccessible playlists with a warning in logs.
+
+### `spotify_stats.export_saved_library`
+
+Export saved tracks and albums to JSON.
+
+```yaml
+service: spotify_stats.export_saved_library
+data:
+  username: planetbuilders
+  filepath: /config/www/saved_library.json
+```
+
+### `spotify_stats.set_update_intervals`
+
+Dynamically change polling intervals without restarting.
+
+```yaml
+service: spotify_stats.set_update_intervals
+data:
+  username: planetbuilders
+  now_playing_interval: 60
+  recently_played_interval: 600
+```
+
+### `spotify_stats.refresh_now_playing`
+
+Force immediate refresh of now playing sensor.
 
 ```yaml
 service: spotify_stats.refresh_now_playing
 data:
-  username: "ian"
+  username: planetbuilders
 ```
+
+## Dashboard Example
+
+A complete 8-view dashboard is available in the repository showcasing:
+
+- Now Playing & Recently Played
+- Top Artists & Tracks (4 weeks, 6 months, all time)
+- Followed Artists  
+- Playlists
+- Saved Tracks & Albums
 
 ## Automation Examples
 
-### Daily Listening History Export
+### Daily Listening History Backup
 
 ```yaml
 automation:
-  - alias: "Spotify: Export Daily Listening History"
+  - alias: "Backup Spotify History Daily"
     trigger:
       - platform: time
-        at: "23:55:00"
+        at: "23:59:00"
     action:
       - service: spotify_stats.export_recently_played_csv
         data:
-          username: "ian"
-          filepath: "/config/www/spotify/ian_listening_history.csv"
-          append: true
+          username: planetbuilders
+          filepath: "/config/backups/spotify_{{ now().strftime('%Y%m%d') }}.csv"
+          append: false
+          include_audio_features: true
 ```
 
-### Weekly Library Backup
+### Weekly Top Artists Report
 
 ```yaml
 automation:
-  - alias: "Spotify: Weekly Library Backup"
+  - alias: "Weekly Top Artists Export"
     trigger:
       - platform: time
-        at: "02:00:00"
-    condition:
-      - condition: time
-        weekday:
-          - sun
-    action:
-      - service: spotify_stats.export_followed_artists
-        data:
-          username: "ian"
-          filepath: "/config/www/spotify/backups/ian_followed_artists_{{ now().strftime('%Y%m%d') }}.json"
-      - service: spotify_stats.export_saved_library
-        data:
-          username: "ian"
-          filepath: "/config/www/spotify/backups/ian_library_{{ now().strftime('%Y%m%d') }}.json"
-      - service: spotify_stats.export_playlists
-        data:
-          username: "ian"
-          filepath: "/config/www/spotify/backups/ian_playlists_{{ now().strftime('%Y%m%d') }}.json"
-```
-
-### Monthly Top Stats Snapshot
-
-```yaml
-automation:
-  - alias: "Spotify: Monthly Top Stats"
-    trigger:
-      - platform: time
-        at: "03:00:00"
-    condition:
-      - condition: template
-        value_template: "{{ now().day == 1 }}"
+        at: "09:00:00"
+      - platform: time_pattern
+        days: "/7"
     action:
       - service: spotify_stats.export_top_stats_csv
         data:
-          username: "ian"
-          filepath: "/config/www/spotify/stats/ian_top_artists_{{ now().strftime('%Y%m') }}.csv"
-          entity_type: "artists"
-          time_range: "short_term"
+          username: planetbuilders
+          filepath: "/config/reports/artists_{{ now().strftime('%Y%m%d') }}.csv"
+          entity_type: artists
+          time_range: short_term
 ```
-
-### Speed Up Updates When Playing
-
-```yaml
-automation:
-  - alias: "Spotify: Ian Speed Up When Playing"
-    trigger:
-      - platform: state
-        entity_id: sensor.ian_spotify_stats_now_playing
-        to: "playing"
-    action:
-      - service: spotify_stats.set_update_interval
-        data:
-          username: "ian"
-          now_playing_interval: 30
-  
-  - alias: "Spotify: Ian Slow Down When Idle"
-    trigger:
-      - platform: state
-        entity_id: sensor.ian_spotify_stats_now_playing
-        to: "idle"
-        for: "00:05:00"
-    action:
-      - service: spotify_stats.set_update_interval
-        data:
-          username: "ian"
-          now_playing_interval: 120
-```
-
-## Dashboard Examples
-
-### Simple Now Playing Card
-
-```yaml
-type: entity
-entity: sensor.ian_spotify_stats_now_playing
-```
-
-### Multi-User Household View
-
-```yaml
-type: entities
-title: Household Spotify Activity
-entities:
-  - entity: sensor.ian_spotify_stats_now_playing
-    name: "Ian's Now Playing"
-  - entity: sensor.sal_spotify_stats_now_playing
-    name: "Sal's Now Playing"
-  - entity: sensor.ian_spotify_stats_followed_artists
-    name: "Ian Followed Artists"
-  - entity: sensor.sal_spotify_stats_followed_artists
-    name: "Sal Followed Artists"
-```
-
-### Top Artists Chart
-
-```yaml
-type: markdown
-content: |
-  ## Ian's Top Artists (4 Weeks)
-  {% for artist in state_attr('sensor.ian_spotify_stats_top_artists_4weeks', 'artists')[:10] %}
-  {{ loop.index }}. [{{ artist.name }}]({{ artist.url }})
-  {% endfor %}
-```
-
-## File Structure
-
-Exported files are stored in `/config/www/spotify/`:
-
-```
-/config/www/spotify/
-├── ian_followed_artists.json
-├── ian_saved_library.json
-├── ian_playlists.json
-├── ian_listening_history.csv
-├── sal_followed_artists.json
-├── sal_saved_library.json
-└── backups/
-    ├── ian_followed_artists_20250203.json
-    └── ian_library_20250203.json
-```
-
-These files are accessible via:
-- `http://your-home-assistant:8123/local/spotify/ian_listening_history.csv`
 
 ## Troubleshooting
 
-### "Invalid Redirect URI" Error
+### "Implementation not available" error
 
-Make sure your redirect URI in the Spotify Developer Dashboard exactly matches your Home Assistant URL. Common formats:
-- Nabu Casa: `https://abcdef1234567890.ui.nabu.casa/auth/external/callback`
-- Local: `http://homeassistant.local:8123/auth/external/callback`
-- Custom domain: `https://yourdomain.com/auth/external/callback`
+**Solution**: The official Spotify integration must be configured first. The Spotify Statistics integration shares OAuth credentials with it.
 
-### Sensors Not Updating
+### 401 Unauthorized errors
 
-1. Check your update intervals in integration configuration
-2. Verify you've authorized the integration in Spotify
-3. Check Home Assistant logs for API rate limit messages
-4. Try manually refreshing with `spotify_stats.refresh_now_playing`
+**Causes**:
+- Spotify Premium required for now playing functionality
+- Token expired (automatic refresh should handle this)
+- Redirect URI mismatch in Spotify Developer Dashboard
 
-### Export Files Not Appearing
+**Solution**: Verify redirect URI matches your Home Assistant URL exactly.
 
-1. Ensure the `/config/www/spotify/` directory exists
-2. Check file permissions
-3. Review Home Assistant logs for write errors
-4. Verify the filepath in your automation/service call
+### Database size warnings
 
-## Permissions Required
+The integration limits sensor attributes to 20 items each to stay under Home Assistant's 16KB attribute limit. Use export services to access complete data.
 
-The integration requires the following Spotify API scopes:
-- `user-read-currently-playing` - Read currently playing track
-- `user-read-recently-played` - Read recently played tracks
-- `user-top-read` - Read top artists and tracks
-- `user-follow-read` - Read followed artists
-- `user-library-read` - Read saved albums and tracks
-- `playlist-read-private` - Read private playlists
-- `playlist-read-collaborative` - Read collaborative playlists
+### Export playlists fails with 404
+
+Some playlists may be deleted or made private. The service skips these with a warning and exports remaining playlists successfully.
+
+## Data Privacy
+
+- All data stays local in Home Assistant
+- OAuth tokens stored securely in Home Assistant's credential storage
+- Export files saved to paths you specify
+- No data sent to third parties (except Spotify API calls)
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please:
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
 ## Support
 
@@ -418,6 +313,22 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Credits
 
-Created by Ian Pleasance ([@ianpleasance](https://github.com/ianpleasance))
+Created by [Ian Pleasance](https://github.com/ianpleasance)
 
-Built for the Home Assistant community.
+Uses the [spotipy](https://github.com/spotipy-dev/spotipy) library for Spotify API access.
+
+## License
+
+Apache License 2.0 - See [LICENSE](LICENSE) file for details.
+
+## Changelog
+
+### v0.1.0 (2026-02-13)
+
+Initial release with:
+- 12 sensors per user (now playing, recently played, top stats, followed artists, playlists, saved library)
+- 7 export services
+- Multi-user support
+- Shared OAuth with official Spotify integration
+- Configurable polling intervals
+- Example dashboard and automations
