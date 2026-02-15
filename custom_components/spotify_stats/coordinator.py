@@ -283,7 +283,7 @@ class SpotifyStatsCoordinator(DataUpdateCoordinator):
 
     def _fetch_recently_played(self) -> dict[str, Any]:
         """Fetch recently played tracks."""
-        recent = self.sp.current_user_recently_played(limit=50)
+        recent = self.sp.current_user_recently_played(limit=20)
 
         tracks = []
         for item in recent.get("items", []):
