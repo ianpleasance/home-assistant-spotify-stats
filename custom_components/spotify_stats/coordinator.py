@@ -450,20 +450,35 @@ class SpotifyStatsCoordinator(DataUpdateCoordinator):
             results = self.sp.current_user_saved_tracks(limit=50)
             
             for item in results["items"]:
-                track = item["track"]
-                tracks.append({
-                    "id": track["id"],
-                    "name": track["name"],
-                    "artist_name": track["artists"][0]["name"],
-                    "artist_id": track["artists"][0]["id"],
-                    "album_name": track["album"]["name"],
-                    "album_id": track["album"]["id"],
-                    "url": track["external_urls"]["spotify"],
-                    "uri": track["uri"],
-                    "duration_ms": track["duration_ms"],
-                    "popularity": track.get("popularity", 0),
-                    "added_at": item["added_at"],
-                })
+                track = item.get("track")
+                
+                # Skip if track is None (deleted/unavailable)
+                if not track:
+                    _LOGGER.warning("Skipping saved track with no data (possibly deleted)")
+                    continue
+                
+                # Skip if track doesn't have required fields
+                if not track.get("id") or not track.get("artists") or not track.get("album"):
+                    _LOGGER.warning("Skipping track with missing data: %s", track.get("name", "Unknown"))
+                    continue
+                
+                try:
+                    tracks.append({
+                        "id": track["id"],
+                        "name": track.get("name", "Unknown Track"),
+                        "artist_name": track["artists"][0]["name"],
+                        "artist_id": track["artists"][0]["id"],
+                        "album_name": track["album"]["name"],
+                        "album_id": track["album"]["id"],
+                        "url": track["external_urls"]["spotify"],
+                        "uri": track.get("uri", ""),
+                        "duration_ms": track.get("duration_ms", 0),
+                        "popularity": track.get("popularity", 0),
+                        "added_at": item.get("added_at", ""),
+                    })
+                except (KeyError, IndexError, TypeError) as err:
+                    _LOGGER.warning("Error processing track %s: %s", track.get("name", "Unknown"), err)
+                    continue
             
             _LOGGER.debug("_fetch_saved_tracks: Total %s tracks, fetched %s", total_count, len(tracks))
             
@@ -492,18 +507,33 @@ class SpotifyStatsCoordinator(DataUpdateCoordinator):
             results = self.sp.current_user_saved_albums(limit=50)
             
             for item in results["items"]:
-                album = item["album"]
-                albums.append({
-                    "id": album["id"],
-                    "name": album["name"],
-                    "artist_name": album["artists"][0]["name"],
-                    "artist_id": album["artists"][0]["id"],
-                    "url": album["external_urls"]["spotify"],
-                    "uri": album["uri"],
-                    "total_tracks": album["total_tracks"],
-                    "release_date": album.get("release_date", ""),
-                    "added_at": item["added_at"],
-                })
+                album = item.get("album")
+                
+                # Skip if album is None (deleted/unavailable)
+                if not album:
+                    _LOGGER.warning("Skipping saved album with no data (possibly deleted)")
+                    continue
+                
+                # Skip if album doesn't have required fields
+                if not album.get("id") or not album.get("artists"):
+                    _LOGGER.warning("Skipping album with missing data: %s", album.get("name", "Unknown"))
+                    continue
+                
+                try:
+                    albums.append({
+                        "id": album["id"],
+                        "name": album.get("name", "Unknown Album"),
+                        "artist_name": album["artists"][0]["name"],
+                        "artist_id": album["artists"][0]["id"],
+                        "url": album["external_urls"]["spotify"],
+                        "uri": album.get("uri", ""),
+                        "total_tracks": album.get("total_tracks", 0),
+                        "release_date": album.get("release_date", ""),
+                        "added_at": item.get("added_at", ""),
+                    })
+                except (KeyError, IndexError, TypeError) as err:
+                    _LOGGER.warning("Error processing album %s: %s", album.get("name", "Unknown"), err)
+                    continue
             
             _LOGGER.debug("_fetch_saved_albums: Total %s albums, fetched %s", total_count, len(albums))
             
