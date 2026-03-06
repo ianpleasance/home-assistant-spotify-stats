@@ -2,46 +2,153 @@
   "config": {
     "step": {
       "user": {
-        "title": "Spotify Statistics Setup",
-        "description": "Configure your Spotify account for statistics tracking. You'll need API credentials from the Spotify Developer Dashboard.",
+        "title": "Set up Spotify Statistics",
+        "description": "Enter your Spotify username and polling intervals. After submitting, you'll be redirected to Spotify to authorize access.",
         "data": {
           "username": "Spotify Username",
-          "client_id": "Client ID",
-          "client_secret": "Client Secret",
           "now_playing_interval": "Now Playing Update Interval (seconds)",
           "recently_played_interval": "Recently Played Update Interval (seconds)"
-        },
-        "data_description": {
-          "username": "Your Spotify username or display name (e.g., 'ian')",
-          "client_id": "Client ID from your Spotify Developer app",
-          "client_secret": "Client Secret from your Spotify Developer app",
-          "now_playing_interval": "How often to check what's currently playing (minimum 30 seconds)",
-          "recently_played_interval": "How often to check recently played tracks (minimum 300 seconds)"
         }
+      },
+      "pick_implementation": {
+        "title": "Select Authentication Method"
       }
     },
     "error": {
-      "already_configured": "This username is already configured. Please use a different username or remove the existing configuration first.",
-      "cannot_connect": "Failed to connect to Spotify. Please check your credentials.",
-      "invalid_auth": "Invalid authentication credentials. Please check your Client ID and Client Secret.",
-      "unknown": "An unexpected error occurred. Please check the logs for details."
+      "cannot_connect": "Failed to connect to Spotify",
+      "invalid_auth": "Invalid authentication",
+      "unknown": "Unexpected error occurred"
     },
     "abort": {
-      "already_configured": "This Spotify account is already configured."
+      "already_configured": "This Spotify account is already configured",
+      "missing_credentials": "Application Credentials not configured. Please go to Settings → Devices & Services → Application Credentials and add your Spotify Client ID and Client Secret first.",
+      "oauth_error": "OAuth authorization failed. Please try again."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Update Spotify Statistics Options",
-        "description": "Adjust update intervals for this account.",
+        "title": "Spotify Statistics Options",
+        "description": "Update polling intervals for this account.",
         "data": {
           "now_playing_interval": "Now Playing Update Interval (seconds)",
           "recently_played_interval": "Recently Played Update Interval (seconds)"
+        }
+      }
+    }
+  },
+  "services": {
+    "export_followed_artists": {
+      "name": "Export Followed Artists",
+      "description": "Export all followed artists with complete metadata to a JSON file.",
+      "fields": {
+        "username": {
+          "name": "Username",
+          "description": "Spotify username to export data for."
         },
-        "data_description": {
-          "now_playing_interval": "How often to check what's currently playing (minimum 30 seconds)",
-          "recently_played_interval": "How often to check recently played tracks (minimum 300 seconds)"
+        "filepath": {
+          "name": "File Path",
+          "description": "Absolute path to save the JSON file."
+        }
+      }
+    },
+    "export_saved_library": {
+      "name": "Export Saved Library",
+      "description": "Export saved albums and tracks with complete metadata to a JSON file.",
+      "fields": {
+        "username": {
+          "name": "Username",
+          "description": "Spotify username to export data for."
+        },
+        "filepath": {
+          "name": "File Path",
+          "description": "Absolute path to save the JSON file."
+        }
+      }
+    },
+    "export_playlists": {
+      "name": "Export Playlists",
+      "description": "Export all playlists with full track listings to a JSON file.",
+      "fields": {
+        "username": {
+          "name": "Username",
+          "description": "Spotify username to export data for."
+        },
+        "filepath": {
+          "name": "File Path",
+          "description": "Absolute path to save the JSON file."
+        }
+      }
+    },
+    "export_recently_played_csv": {
+      "name": "Export Recently Played to CSV",
+      "description": "Export recently played tracks to CSV for long-term tracking.",
+      "fields": {
+        "username": {
+          "name": "Username",
+          "description": "Spotify username to export data for."
+        },
+        "filepath": {
+          "name": "File Path",
+          "description": "Absolute path to save the CSV file."
+        },
+        "append": {
+          "name": "Append Mode",
+          "description": "Append to existing file (prevents duplicates)."
+        },
+        "include_audio_features": {
+          "name": "Include Audio Features",
+          "description": "Fetch audio analysis data (danceability, energy, etc.). This is slower."
+        }
+      }
+    },
+    "export_top_stats_csv": {
+      "name": "Export Top Stats to CSV",
+      "description": "Export top artists or tracks snapshot to CSV.",
+      "fields": {
+        "username": {
+          "name": "Username",
+          "description": "Spotify username to export data for."
+        },
+        "filepath": {
+          "name": "File Path",
+          "description": "Absolute path to save the CSV file."
+        },
+        "entity_type": {
+          "name": "Entity Type",
+          "description": "Export artists or tracks."
+        },
+        "time_range": {
+          "name": "Time Range",
+          "description": "Time period for top stats."
+        }
+      }
+    },
+    "set_update_interval": {
+      "name": "Set Update Interval",
+      "description": "Dynamically adjust update intervals for a user's sensors.",
+      "fields": {
+        "username": {
+          "name": "Username",
+          "description": "Spotify username to update intervals for."
+        },
+        "now_playing_interval": {
+          "name": "Now Playing Interval",
+          "description": "Update interval in seconds for now playing sensor (30-300)."
+        },
+        "recently_played_interval": {
+          "name": "Recently Played Interval",
+          "description": "Update interval in seconds for recently played sensor (300-3600)."
+        }
+      }
+    },
+    "refresh_now_playing": {
+      "name": "Refresh Now Playing",
+      "description": "Immediately refresh the now playing sensor for a user.",
+      "fields": {
+        "username": {
+          "name": "Username",
+          "description": "Spotify username to refresh."
         }
       }
     }

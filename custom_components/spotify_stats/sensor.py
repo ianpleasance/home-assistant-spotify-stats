@@ -5,12 +5,15 @@ from datetime import datetime
 import logging
 from typing import Any
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import ATTR_ATTRIBUTION
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_USERNAME,
@@ -32,6 +35,8 @@ from .coordinator import SpotifyStatsCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
+_ATTRIBUTION = "Data provided by Spotify (https://www.spotify.com)"
+
 
 def sanitize_username(username: str) -> str:
     """Convert username to valid entity ID format."""
@@ -46,7 +51,7 @@ async def async_setup_entry(
     """Set up Spotify Statistics sensors."""
     coordinator: SpotifyStatsCoordinator = hass.data[DOMAIN][entry.entry_id]
     username = entry.data[CONF_USERNAME]
-    
+
     sensors = [
         SpotifyNowPlayingSensor(coordinator, username),
         SpotifyRecentlyPlayedSensor(coordinator, username),
@@ -61,7 +66,7 @@ async def async_setup_entry(
         SpotifySavedTracksSensor(coordinator, username),
         SpotifySavedAlbumsSensor(coordinator, username),
     ]
-    
+
     async_add_entities(sensors)
     _LOGGER.debug("Added %s Spotify sensors for user: %s", len(sensors), username)
 
@@ -78,7 +83,8 @@ class SpotifyStatsBaseSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
         self.username = username
         self._sanitized_username = sanitize_username(username)
-        
+        self._last_update_time = dt_util.now()
+
     @property
     def device_info(self) -> DeviceInfo:
         """Return device information."""
@@ -87,7 +93,21 @@ class SpotifyStatsBaseSensor(CoordinatorEntity, SensorEntity):
             name=f"Spotify Stats ({self.username})",
             manufacturer="Spotify",
             model="Account",
+            entry_type=DeviceEntryType.SERVICE,
         )
+
+    def _base_attributes(self) -> dict[str, Any]:
+        """Return base attributes common to all sensors."""
+        if self.coordinator.last_update_success:
+            self._last_update_time = dt_util.now()
+        attrs: dict[str, Any] = {
+            ATTR_ATTRIBUTION: _ATTRIBUTION,
+            "last_updated": self._last_update_time,
+            "last_update_success": self.coordinator.last_update_success,
+        }
+        if self.coordinator.last_exception:
+            attrs["last_error"] = str(self.coordinator.last_exception)
+        return attrs
 
 
 class SpotifyNowPlayingSensor(SpotifyStatsBaseSensor):
@@ -110,11 +130,13 @@ class SpotifyNowPlayingSensor(SpotifyStatsBaseSensor):
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional attributes."""
         data = self.coordinator.data.get(SENSOR_NOW_PLAYING, {})
-        
+        attrs = self._base_attributes()
+
         if data.get("state") == "idle":
-            return {"state": "idle"}
-        
-        return {
+            attrs["state"] = "idle"
+            return attrs
+
+        attrs.update({
             "track_id": data.get("track_id"),
             "track_name": data.get("track_name"),
             "artist_id": data.get("artist_id"),
@@ -129,7 +151,8 @@ class SpotifyNowPlayingSensor(SpotifyStatsBaseSensor):
             "is_playing": data.get("is_playing"),
             "shuffle_state": data.get("shuffle_state"),
             "repeat_state": data.get("repeat_state"),
-        }
+        })
+        return attrs
 
 
 class SpotifyRecentlyPlayedSensor(SpotifyStatsBaseSensor):
@@ -152,14 +175,18 @@ class SpotifyRecentlyPlayedSensor(SpotifyStatsBaseSensor):
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional attributes."""
         data = self.coordinator.data.get(SENSOR_RECENTLY_PLAYED, {})
-        return {
+        attrs = self._base_attributes()
+        attrs.update({
             "count": data.get("count", 0),
             "tracks": data.get("tracks", []),
-        }
+        })
+        return attrs
 
 
 class SpotifyFollowedArtistsSensor(SpotifyStatsBaseSensor):
     """Sensor for followed artists."""
+
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(self, coordinator: SpotifyStatsCoordinator, username: str) -> None:
         """Initialize the sensor."""
@@ -178,14 +205,18 @@ class SpotifyFollowedArtistsSensor(SpotifyStatsBaseSensor):
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional attributes."""
         data = self.coordinator.data.get(SENSOR_FOLLOWED_ARTISTS, {})
-        return {
-            "artists": data.get("artists", []),  # Limited to 20
+        attrs = self._base_attributes()
+        attrs.update({
+            "artists": data.get("artists", []),
             "total_count": data.get("count", 0),
-        }
+        })
+        return attrs
 
 
 class SpotifyTopArtistsSensor(SpotifyStatsBaseSensor):
     """Sensor for top artists."""
+
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(
         self, coordinator: SpotifyStatsCoordinator, username: str, period: str
@@ -209,14 +240,18 @@ class SpotifyTopArtistsSensor(SpotifyStatsBaseSensor):
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional attributes."""
         data = self.coordinator.data.get(f"top_artists_{self.period}", {})
-        return {
+        attrs = self._base_attributes()
+        attrs.update({
             "period": data.get("period"),
             "artists": data.get("artists", []),
-        }
+        })
+        return attrs
 
 
 class SpotifyTopTracksSensor(SpotifyStatsBaseSensor):
     """Sensor for top tracks."""
+
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(
         self, coordinator: SpotifyStatsCoordinator, username: str, period: str
@@ -240,14 +275,18 @@ class SpotifyTopTracksSensor(SpotifyStatsBaseSensor):
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional attributes."""
         data = self.coordinator.data.get(f"top_tracks_{self.period}", {})
-        return {
+        attrs = self._base_attributes()
+        attrs.update({
             "period": data.get("period"),
             "tracks": data.get("tracks", []),
-        }
+        })
+        return attrs
 
 
 class SpotifyUserPlaylistsSensor(SpotifyStatsBaseSensor):
     """Sensor for user playlists."""
+
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(self, coordinator: SpotifyStatsCoordinator, username: str) -> None:
         """Initialize the sensor."""
@@ -266,13 +305,15 @@ class SpotifyUserPlaylistsSensor(SpotifyStatsBaseSensor):
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional attributes."""
         data = self.coordinator.data.get(SENSOR_USER_PLAYLISTS, {})
-        return {
-            "playlists": data.get("playlists", []),
-        }
+        attrs = self._base_attributes()
+        attrs["playlists"] = data.get("playlists", [])
+        return attrs
 
 
 class SpotifySavedTracksSensor(SpotifyStatsBaseSensor):
     """Sensor for saved tracks."""
+
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(self, coordinator: SpotifyStatsCoordinator, username: str) -> None:
         """Initialize the sensor."""
@@ -291,13 +332,15 @@ class SpotifySavedTracksSensor(SpotifyStatsBaseSensor):
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional attributes."""
         data = self.coordinator.data.get(SENSOR_SAVED_TRACKS, {})
-        return {
-            "tracks": data.get("tracks", []),
-        }
+        attrs = self._base_attributes()
+        attrs["tracks"] = data.get("tracks", [])
+        return attrs
 
 
 class SpotifySavedAlbumsSensor(SpotifyStatsBaseSensor):
     """Sensor for saved albums."""
+
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(self, coordinator: SpotifyStatsCoordinator, username: str) -> None:
         """Initialize the sensor."""
@@ -316,6 +359,6 @@ class SpotifySavedAlbumsSensor(SpotifyStatsBaseSensor):
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional attributes."""
         data = self.coordinator.data.get(SENSOR_SAVED_ALBUMS, {})
-        return {
-            "albums": data.get("albums", []),
-        }
+        attrs = self._base_attributes()
+        attrs["albums"] = data.get("albums", [])
+        return attrs
