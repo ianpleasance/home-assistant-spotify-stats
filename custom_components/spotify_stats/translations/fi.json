@@ -1,0 +1,156 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Spotify-tilastojen asetukset",
+        "description": "Anna Spotify-käyttäjätunnuksesi ja päivitysvälit. Sen jälkeen sinut ohjataan Spotifyhin valtuuttamaan käyttöoikeus.",
+        "data": {
+          "username": "Spotify-käyttäjätunnus",
+          "now_playing_interval": "Nyt soi -päivitysväli (sekuntia)",
+          "recently_played_interval": "Viimeksi soitettu -päivitysväli (sekuntia)"
+        }
+      },
+      "pick_implementation": {
+        "title": "Select Authentication Method"
+      }
+    },
+    "error": {
+      "cannot_connect": "Yhteys Spotifyhin epäonnistui",
+      "invalid_auth": "Virheellinen todennus",
+      "unknown": "Odottamaton virhe tapahtui"
+    },
+    "abort": {
+      "already_configured": "Tämä Spotify-tili on jo määritetty",
+      "missing_credentials": "Sovelluksen tunnistetietoja ei ole määritetty. Siirry kohtaan Asetukset → Laitteet ja palvelut → Sovelluksen tunnistetiedot ja lisää ensin Spotify Client ID ja Client Secret.",
+      "oauth_error": "OAuth-valtuutus epäonnistui. Yritä uudelleen."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Spotify-tilastovaihtoehdot",
+        "description": "Päivitä tämän tilin päivitysvälit.",
+        "data": {
+          "now_playing_interval": "Nyt soi -päivitysväli (sekuntia)",
+          "recently_played_interval": "Viimeksi soitettu -päivitysväli (sekuntia)"
+        }
+      }
+    }
+  },
+  "services": {
+    "export_followed_artists": {
+      "name": "Vie seuratut artistit",
+      "description": "Vie kaikki seuratut artistit täydellisine metatietoineen JSON-tiedostoon.",
+      "fields": {
+        "username": {
+          "name": "Käyttäjätunnus",
+          "description": "Spotify-käyttäjätunnus, jolle data viedään."
+        },
+        "filepath": {
+          "name": "Tiedostopolku",
+          "description": "Absoluuttinen polku tiedoston tallentamiseen."
+        }
+      }
+    },
+    "export_saved_library": {
+      "name": "Vie tallennettu kirjasto",
+      "description": "Vie tallennetut albumit ja kappaleet täydellisine metatietoineen JSON-tiedostoon.",
+      "fields": {
+        "username": {
+          "name": "Käyttäjätunnus",
+          "description": "Spotify-käyttäjätunnus, jolle data viedään."
+        },
+        "filepath": {
+          "name": "Tiedostopolku",
+          "description": "Absoluuttinen polku tiedoston tallentamiseen."
+        }
+      }
+    },
+    "export_playlists": {
+      "name": "Vie soittolistat",
+      "description": "Vie kaikki soittolistat täydellisine kappaleineen JSON-tiedostoon.",
+      "fields": {
+        "username": {
+          "name": "Käyttäjätunnus",
+          "description": "Spotify-käyttäjätunnus, jolle data viedään."
+        },
+        "filepath": {
+          "name": "Tiedostopolku",
+          "description": "Absoluuttinen polku tiedoston tallentamiseen."
+        }
+      }
+    },
+    "export_recently_played_csv": {
+      "name": "Vie viimeksi soitetut CSV:ksi",
+      "description": "Vie viimeksi soitetut kappaleet CSV-muotoon pitkäaikaiseen seurantaan.",
+      "fields": {
+        "username": {
+          "name": "Käyttäjätunnus",
+          "description": "Spotify-käyttäjätunnus, jolle data viedään."
+        },
+        "filepath": {
+          "name": "Tiedostopolku",
+          "description": "Absoluuttinen polku tiedoston tallentamiseen."
+        },
+        "append": {
+          "name": "Lisäystila",
+          "description": "Lisää olemassa olevaan tiedostoon (estää kaksoiskappaleet)."
+        },
+        "include_audio_features": {
+          "name": "Sisällytä äänominaisuudet",
+          "description": "Hae äänanalyysidata (tanssittavuus, energia jne.). Tämä on hitaampaa."
+        }
+      }
+    },
+    "export_top_stats_csv": {
+      "name": "Vie top-tilastot CSV:ksi",
+      "description": "Vie tilannekuva parhaista artisteista tai kappaleista CSV-muotoon.",
+      "fields": {
+        "username": {
+          "name": "Käyttäjätunnus",
+          "description": "Spotify-käyttäjätunnus, jolle data viedään."
+        },
+        "filepath": {
+          "name": "Tiedostopolku",
+          "description": "Absoluuttinen polku tiedoston tallentamiseen."
+        },
+        "entity_type": {
+          "name": "Entiteettityyppi",
+          "description": "Vie artistit tai kappaleet."
+        },
+        "time_range": {
+          "name": "Aikaväli",
+          "description": "Aikajakso top-tilastoja varten."
+        }
+      }
+    },
+    "set_update_interval": {
+      "name": "Aseta päivitysväli",
+      "description": "Säädä dynaamisesti käyttäjän sensoreiden päivitysvälejä.",
+      "fields": {
+        "username": {
+          "name": "Käyttäjätunnus",
+          "description": "Spotify-käyttäjätunnus, jolle data viedään."
+        },
+        "now_playing_interval": {
+          "name": "'Nyt soi' -päivitysväli (sek.)",
+          "description": "Päivitysväli sekunteina nyt soi -sensorille (30-300)."
+        },
+        "recently_played_interval": {
+          "name": "'Viimeksi soitettu' -päivitysväli (sek.)",
+          "description": "Päivitysväli sekunteina viimeksi soitettu -sensorille (300-3600)."
+        }
+      }
+    },
+    "refresh_now_playing": {
+      "name": "Päivitä nyt soi",
+      "description": "Päivitä nyt soi -sensori välittömästi käyttäjälle.",
+      "fields": {
+        "username": {
+          "name": "Käyttäjätunnus",
+          "description": "Spotify-käyttäjätunnus, jolle data viedään."
+        }
+      }
+    }
+  }
+}

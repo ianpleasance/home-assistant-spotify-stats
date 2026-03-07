@@ -1,0 +1,156 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Konfigurera Spotify-statistik",
+        "description": "Ange ditt Spotify-användarnamn och uppdateringsintervall. Därefter omdirigeras du till Spotify för att godkänna åtkomst.",
+        "data": {
+          "username": "Spotify-användarnamn",
+          "now_playing_interval": "Uppdateringsintervall för 'Spelar nu' (sekunder)",
+          "recently_played_interval": "Uppdateringsintervall för 'Nyligen spelad' (sekunder)"
+        }
+      },
+      "pick_implementation": {
+        "title": "Select Authentication Method"
+      }
+    },
+    "error": {
+      "cannot_connect": "Anslutning till Spotify misslyckades",
+      "invalid_auth": "Ogiltig autentisering",
+      "unknown": "Oväntat fel uppstod"
+    },
+    "abort": {
+      "already_configured": "Detta Spotify-konto är redan konfigurerat",
+      "missing_credentials": "Programreferenser inte konfigurerade. Gå till Inställningar → Enheter och tjänster → Programreferenser och lägg till ditt Spotify Client ID och Client Secret först.",
+      "oauth_error": "OAuth-auktorisering misslyckades. Försök igen."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Spotify-statistikalternativ",
+        "description": "Uppdatera polling-intervall för detta konto.",
+        "data": {
+          "now_playing_interval": "Uppdateringsintervall för 'Spelar nu' (sekunder)",
+          "recently_played_interval": "Uppdateringsintervall för 'Nyligen spelad' (sekunder)"
+        }
+      }
+    }
+  },
+  "services": {
+    "export_followed_artists": {
+      "name": "Exportera följda artister",
+      "description": "Exportera alla följda artister med fullständig metadata till en JSON-fil.",
+      "fields": {
+        "username": {
+          "name": "Användarnamn",
+          "description": "Spotify-användarnamn att exportera data för."
+        },
+        "filepath": {
+          "name": "Filsökväg",
+          "description": "Absolut sökväg för att spara filen."
+        }
+      }
+    },
+    "export_saved_library": {
+      "name": "Exportera sparat bibliotek",
+      "description": "Exportera sparade album och låtar med fullständig metadata till en JSON-fil.",
+      "fields": {
+        "username": {
+          "name": "Användarnamn",
+          "description": "Spotify-användarnamn att exportera data för."
+        },
+        "filepath": {
+          "name": "Filsökväg",
+          "description": "Absolut sökväg för att spara filen."
+        }
+      }
+    },
+    "export_playlists": {
+      "name": "Exportera spellistor",
+      "description": "Exportera alla spellistor med fullständiga låtlistor till en JSON-fil.",
+      "fields": {
+        "username": {
+          "name": "Användarnamn",
+          "description": "Spotify-användarnamn att exportera data för."
+        },
+        "filepath": {
+          "name": "Filsökväg",
+          "description": "Absolut sökväg för att spara filen."
+        }
+      }
+    },
+    "export_recently_played_csv": {
+      "name": "Exportera nyligen spelade till CSV",
+      "description": "Exportera nyligen spelade låtar till CSV för långsiktig spårning.",
+      "fields": {
+        "username": {
+          "name": "Användarnamn",
+          "description": "Spotify-användarnamn att exportera data för."
+        },
+        "filepath": {
+          "name": "Filsökväg",
+          "description": "Absolut sökväg för att spara filen."
+        },
+        "append": {
+          "name": "Tilläggsläge",
+          "description": "Lägg till i befintlig fil (förhindrar dubbletter)."
+        },
+        "include_audio_features": {
+          "name": "Inkludera ljudfunktioner",
+          "description": "Hämta ljudanalysdata (dansbarhet, energi osv.). Detta är långsammare."
+        }
+      }
+    },
+    "export_top_stats_csv": {
+      "name": "Exportera toppstatistik till CSV",
+      "description": "Exportera ögonblicksbild av toppkonstnärer eller -låtar till CSV.",
+      "fields": {
+        "username": {
+          "name": "Användarnamn",
+          "description": "Spotify-användarnamn att exportera data för."
+        },
+        "filepath": {
+          "name": "Filsökväg",
+          "description": "Absolut sökväg för att spara filen."
+        },
+        "entity_type": {
+          "name": "Entitetstyp",
+          "description": "Exportera artister eller låtar."
+        },
+        "time_range": {
+          "name": "Tidsintervall",
+          "description": "Tidsperiod för toppstatistik."
+        }
+      }
+    },
+    "set_update_interval": {
+      "name": "Ange uppdateringsintervall",
+      "description": "Justera uppdateringsintervaller dynamiskt för en användares sensorer.",
+      "fields": {
+        "username": {
+          "name": "Användarnamn",
+          "description": "Spotify-användarnamn att exportera data för."
+        },
+        "now_playing_interval": {
+          "name": "'Spelas nu' intervall (sek.)",
+          "description": "Uppdateringsintervall i sekunder för sensorn 'Spelas nu' (30-300)."
+        },
+        "recently_played_interval": {
+          "name": "'Nyligen spelad' intervall (sek.)",
+          "description": "Uppdateringsintervall i sekunder för sensorn 'Nyligen spelad' (300-3600)."
+        }
+      }
+    },
+    "refresh_now_playing": {
+      "name": "Uppdatera spelas nu",
+      "description": "Uppdatera sensorn 'Spelas nu' omedelbart för en användare.",
+      "fields": {
+        "username": {
+          "name": "Användarnamn",
+          "description": "Spotify-användarnamn att exportera data för."
+        }
+      }
+    }
+  }
+}

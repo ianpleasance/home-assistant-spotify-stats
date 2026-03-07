@@ -1,0 +1,156 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurar Estadísticas de Spotify",
+        "description": "Introduce tu nombre de usuario de Spotify e intervalos de actualización. Después serás redirigido a Spotify para autorizar el acceso.",
+        "data": {
+          "username": "Nombre de usuario de Spotify",
+          "now_playing_interval": "Intervalo de actualización de 'Reproduciendo ahora' (segundos)",
+          "recently_played_interval": "Intervalo de actualización de 'Reproducido recientemente' (segundos)"
+        }
+      },
+      "pick_implementation": {
+        "title": "Select Authentication Method"
+      }
+    },
+    "error": {
+      "cannot_connect": "No se pudo conectar a Spotify",
+      "invalid_auth": "Autenticación no válida",
+      "unknown": "Error inesperado"
+    },
+    "abort": {
+      "already_configured": "Esta cuenta de Spotify ya está configurada",
+      "missing_credentials": "Credenciales de aplicación no configuradas. Ve a Configuración → Dispositivos y servicios → Credenciales de aplicación y añade tu Client ID y Client Secret de Spotify primero.",
+      "oauth_error": "La autorización OAuth falló. Por favor, inténtalo de nuevo."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opciones de Estadísticas de Spotify",
+        "description": "Actualizar los intervalos de actualización para esta cuenta.",
+        "data": {
+          "now_playing_interval": "Intervalo de actualización de 'Reproduciendo ahora' (segundos)",
+          "recently_played_interval": "Intervalo de actualización de 'Reproducido recientemente' (segundos)"
+        }
+      }
+    }
+  },
+  "services": {
+    "export_followed_artists": {
+      "name": "Exportar artistas seguidos",
+      "description": "Exportar todos los artistas seguidos con metadatos completos a un archivo JSON.",
+      "fields": {
+        "username": {
+          "name": "Nombre de usuario",
+          "description": "Nombre de usuario de Spotify para exportar datos."
+        },
+        "filepath": {
+          "name": "Ruta de archivo",
+          "description": "Ruta absoluta para guardar el archivo."
+        }
+      }
+    },
+    "export_saved_library": {
+      "name": "Exportar biblioteca guardada",
+      "description": "Exportar álbumes y canciones guardados con metadatos completos a un archivo JSON.",
+      "fields": {
+        "username": {
+          "name": "Nombre de usuario",
+          "description": "Nombre de usuario de Spotify para exportar datos."
+        },
+        "filepath": {
+          "name": "Ruta de archivo",
+          "description": "Ruta absoluta para guardar el archivo."
+        }
+      }
+    },
+    "export_playlists": {
+      "name": "Exportar listas de reproducción",
+      "description": "Exportar todas las listas de reproducción con listados completos de canciones a un archivo JSON.",
+      "fields": {
+        "username": {
+          "name": "Nombre de usuario",
+          "description": "Nombre de usuario de Spotify para exportar datos."
+        },
+        "filepath": {
+          "name": "Ruta de archivo",
+          "description": "Ruta absoluta para guardar el archivo."
+        }
+      }
+    },
+    "export_recently_played_csv": {
+      "name": "Exportar reproducidas recientemente a CSV",
+      "description": "Exportar canciones reproducidas recientemente a CSV para seguimiento a largo plazo.",
+      "fields": {
+        "username": {
+          "name": "Nombre de usuario",
+          "description": "Nombre de usuario de Spotify para exportar datos."
+        },
+        "filepath": {
+          "name": "Ruta de archivo",
+          "description": "Ruta absoluta para guardar el archivo."
+        },
+        "append": {
+          "name": "Modo añadir",
+          "description": "Añadir al archivo existente (evita duplicados)."
+        },
+        "include_audio_features": {
+          "name": "Incluir características de audio",
+          "description": "Obtener datos de análisis de audio (bailabilidad, energía, etc.). Esto es más lento."
+        }
+      }
+    },
+    "export_top_stats_csv": {
+      "name": "Exportar estadísticas principales a CSV",
+      "description": "Exportar instantánea de los mejores artistas o canciones a CSV.",
+      "fields": {
+        "username": {
+          "name": "Nombre de usuario",
+          "description": "Nombre de usuario de Spotify para exportar datos."
+        },
+        "filepath": {
+          "name": "Ruta de archivo",
+          "description": "Ruta absoluta para guardar el archivo."
+        },
+        "entity_type": {
+          "name": "Tipo de entidad",
+          "description": "Exportar artistas o canciones."
+        },
+        "time_range": {
+          "name": "Rango de tiempo",
+          "description": "Período de tiempo para estadísticas principales."
+        }
+      }
+    },
+    "set_update_interval": {
+      "name": "Establecer intervalo de actualización",
+      "description": "Ajustar dinámicamente los intervalos de actualización para los sensores de un usuario.",
+      "fields": {
+        "username": {
+          "name": "Nombre de usuario",
+          "description": "Nombre de usuario de Spotify para exportar datos."
+        },
+        "now_playing_interval": {
+          "name": "Intervalo 'Reproduciendo ahora' (seg.)",
+          "description": "Intervalo de actualización en segundos para el sensor de reproducción actual (30-300)."
+        },
+        "recently_played_interval": {
+          "name": "Intervalo 'Reproducido recientemente' (seg.)",
+          "description": "Intervalo de actualización en segundos para el sensor de reproducción reciente (300-3600)."
+        }
+      }
+    },
+    "refresh_now_playing": {
+      "name": "Actualizar reproduciendo ahora",
+      "description": "Actualizar inmediatamente el sensor de reproducción actual para un usuario.",
+      "fields": {
+        "username": {
+          "name": "Nombre de usuario",
+          "description": "Nombre de usuario de Spotify para exportar datos."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Spotify-Statistik einrichten",
+        "description": "Gib deinen Spotify-Benutzernamen und Aktualisierungsintervalle ein. Danach wirst du zu Spotify weitergeleitet, um den Zugriff zu autorisieren.",
+        "data": {
+          "username": "Spotify-Benutzername",
+          "now_playing_interval": "Aktualisierungsintervall für 'Jetzt läuft' (Sekunden)",
+          "recently_played_interval": "Aktualisierungsintervall für 'Zuletzt gespielt' (Sekunden)"
+        }
+      },
+      "pick_implementation": {
+        "title": "Select Authentication Method"
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung zu Spotify fehlgeschlagen",
+      "invalid_auth": "Ungültige Authentifizierung",
+      "unknown": "Unerwarteter Fehler"
+    },
+    "abort": {
+      "already_configured": "Dieses Spotify-Konto ist bereits konfiguriert",
+      "missing_credentials": "Anmeldedaten nicht konfiguriert. Bitte gehe zu Einstellungen → Geräte & Dienste → Anmeldedaten und füge zuerst deine Spotify Client-ID und den Client-Secret hinzu.",
+      "oauth_error": "OAuth-Autorisierung fehlgeschlagen. Bitte versuche es erneut."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Spotify-Statistik-Optionen",
+        "description": "Aktualisierungsintervalle für dieses Konto anpassen.",
+        "data": {
+          "now_playing_interval": "Aktualisierungsintervall für 'Jetzt läuft' (Sekunden)",
+          "recently_played_interval": "Aktualisierungsintervall für 'Zuletzt gespielt' (Sekunden)"
+        }
+      }
+    }
+  },
+  "services": {
+    "export_followed_artists": {
+      "name": "Gefolgten Künstler exportieren",
+      "description": "Alle gefolgten Künstler mit vollständigen Metadaten in eine JSON-Datei exportieren.",
+      "fields": {
+        "username": {
+          "name": "Benutzername",
+          "description": "Spotify-Benutzername, für den Daten exportiert werden sollen."
+        },
+        "filepath": {
+          "name": "Dateipfad",
+          "description": "Absoluter Pfad zum Speichern der Datei."
+        }
+      }
+    },
+    "export_saved_library": {
+      "name": "Gespeicherte Bibliothek exportieren",
+      "description": "Gespeicherte Alben und Titel mit vollständigen Metadaten in eine JSON-Datei exportieren.",
+      "fields": {
+        "username": {
+          "name": "Benutzername",
+          "description": "Spotify-Benutzername, für den Daten exportiert werden sollen."
+        },
+        "filepath": {
+          "name": "Dateipfad",
+          "description": "Absoluter Pfad zum Speichern der Datei."
+        }
+      }
+    },
+    "export_playlists": {
+      "name": "Wiedergabelisten exportieren",
+      "description": "Alle Wiedergabelisten mit vollständigen Titellisten in eine JSON-Datei exportieren.",
+      "fields": {
+        "username": {
+          "name": "Benutzername",
+          "description": "Spotify-Benutzername, für den Daten exportiert werden sollen."
+        },
+        "filepath": {
+          "name": "Dateipfad",
+          "description": "Absoluter Pfad zum Speichern der Datei."
+        }
+      }
+    },
+    "export_recently_played_csv": {
+      "name": "Zuletzt gespielt als CSV exportieren",
+      "description": "Zuletzt gespielte Titel zur Langzeitverfolgung in CSV exportieren.",
+      "fields": {
+        "username": {
+          "name": "Benutzername",
+          "description": "Spotify-Benutzername, für den Daten exportiert werden sollen."
+        },
+        "filepath": {
+          "name": "Dateipfad",
+          "description": "Absoluter Pfad zum Speichern der Datei."
+        },
+        "append": {
+          "name": "Anhängemodus",
+          "description": "An vorhandene Datei anhängen (verhindert Duplikate)."
+        },
+        "include_audio_features": {
+          "name": "Audiomerkmale einbeziehen",
+          "description": "Audioanalysedaten abrufen (Tanzbarkeit, Energie usw.). Dies ist langsamer."
+        }
+      }
+    },
+    "export_top_stats_csv": {
+      "name": "Top-Statistiken als CSV exportieren",
+      "description": "Momentaufnahme der Top-Künstler oder -Titel in CSV exportieren.",
+      "fields": {
+        "username": {
+          "name": "Benutzername",
+          "description": "Spotify-Benutzername, für den Daten exportiert werden sollen."
+        },
+        "filepath": {
+          "name": "Dateipfad",
+          "description": "Absoluter Pfad zum Speichern der Datei."
+        },
+        "entity_type": {
+          "name": "Entitätstyp",
+          "description": "Künstler oder Titel exportieren."
+        },
+        "time_range": {
+          "name": "Zeitraum",
+          "description": "Zeitraum für Top-Statistiken."
+        }
+      }
+    },
+    "set_update_interval": {
+      "name": "Aktualisierungsintervall festlegen",
+      "description": "Aktualisierungsintervalle für die Sensoren eines Benutzers dynamisch anpassen.",
+      "fields": {
+        "username": {
+          "name": "Benutzername",
+          "description": "Spotify-Benutzername, für den Daten exportiert werden sollen."
+        },
+        "now_playing_interval": {
+          "name": "Interval 'Jetzt läuft' (Sek.)",
+          "description": "Aktualisierungsintervall in Sekunden für den 'Jetzt läuft'-Sensor (30-300)."
+        },
+        "recently_played_interval": {
+          "name": "Interval 'Zuletzt gespielt' (Sek.)",
+          "description": "Aktualisierungsintervall in Sekunden für den 'Zuletzt gespielt'-Sensor (300-3600)."
+        }
+      }
+    },
+    "refresh_now_playing": {
+      "name": "Jetzt läuft aktualisieren",
+      "description": "Den 'Jetzt läuft'-Sensor für einen Benutzer sofort aktualisieren.",
+      "fields": {
+        "username": {
+          "name": "Benutzername",
+          "description": "Spotify-Benutzername, für den Daten exportiert werden sollen."
+        }
+      }
+    }
+  }
+}

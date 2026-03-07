@@ -1,0 +1,156 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configura Statistiche Spotify",
+        "description": "Inserisci il tuo nome utente Spotify e gli intervalli di aggiornamento. Verrai reindirizzato a Spotify per autorizzare l'accesso.",
+        "data": {
+          "username": "Nome utente Spotify",
+          "now_playing_interval": "Intervallo aggiornamento 'In riproduzione' (secondi)",
+          "recently_played_interval": "Intervallo aggiornamento 'Riprodotto di recente' (secondi)"
+        }
+      },
+      "pick_implementation": {
+        "title": "Select Authentication Method"
+      }
+    },
+    "error": {
+      "cannot_connect": "Connessione a Spotify non riuscita",
+      "invalid_auth": "Autenticazione non valida",
+      "unknown": "Errore imprevisto"
+    },
+    "abort": {
+      "already_configured": "Questo account Spotify è già configurato",
+      "missing_credentials": "Credenziali applicazione non configurate. Vai su Impostazioni → Dispositivi e servizi → Credenziali applicazione e aggiungi prima il tuo Client ID e Client Secret Spotify.",
+      "oauth_error": "Autorizzazione OAuth fallita. Riprova."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opzioni Statistiche Spotify",
+        "description": "Aggiorna gli intervalli di polling per questo account.",
+        "data": {
+          "now_playing_interval": "Intervallo aggiornamento 'In riproduzione' (secondi)",
+          "recently_played_interval": "Intervallo aggiornamento 'Riprodotto di recente' (secondi)"
+        }
+      }
+    }
+  },
+  "services": {
+    "export_followed_artists": {
+      "name": "Esporta artisti seguiti",
+      "description": "Esporta tutti gli artisti seguiti con metadati completi in un file JSON.",
+      "fields": {
+        "username": {
+          "name": "Nome utente",
+          "description": "Nome utente Spotify per cui esportare i dati."
+        },
+        "filepath": {
+          "name": "Percorso file",
+          "description": "Percorso assoluto per salvare il file."
+        }
+      }
+    },
+    "export_saved_library": {
+      "name": "Esporta libreria salvata",
+      "description": "Esporta album e brani salvati con metadati completi in un file JSON.",
+      "fields": {
+        "username": {
+          "name": "Nome utente",
+          "description": "Nome utente Spotify per cui esportare i dati."
+        },
+        "filepath": {
+          "name": "Percorso file",
+          "description": "Percorso assoluto per salvare il file."
+        }
+      }
+    },
+    "export_playlists": {
+      "name": "Esporta playlist",
+      "description": "Esporta tutte le playlist con elenchi completi di brani in un file JSON.",
+      "fields": {
+        "username": {
+          "name": "Nome utente",
+          "description": "Nome utente Spotify per cui esportare i dati."
+        },
+        "filepath": {
+          "name": "Percorso file",
+          "description": "Percorso assoluto per salvare il file."
+        }
+      }
+    },
+    "export_recently_played_csv": {
+      "name": "Esporta riproduzioni recenti in CSV",
+      "description": "Esporta i brani riprodotti di recente in CSV per il monitoraggio a lungo termine.",
+      "fields": {
+        "username": {
+          "name": "Nome utente",
+          "description": "Nome utente Spotify per cui esportare i dati."
+        },
+        "filepath": {
+          "name": "Percorso file",
+          "description": "Percorso assoluto per salvare il file."
+        },
+        "append": {
+          "name": "Modalità accodamento",
+          "description": "Accoda al file esistente (evita duplicati)."
+        },
+        "include_audio_features": {
+          "name": "Includi caratteristiche audio",
+          "description": "Recupera dati di analisi audio (ballabilità, energia, ecc.). È più lento."
+        }
+      }
+    },
+    "export_top_stats_csv": {
+      "name": "Esporta statistiche top in CSV",
+      "description": "Esporta uno snapshot degli artisti o brani top in CSV.",
+      "fields": {
+        "username": {
+          "name": "Nome utente",
+          "description": "Nome utente Spotify per cui esportare i dati."
+        },
+        "filepath": {
+          "name": "Percorso file",
+          "description": "Percorso assoluto per salvare il file."
+        },
+        "entity_type": {
+          "name": "Tipo entità",
+          "description": "Esporta artisti o brani."
+        },
+        "time_range": {
+          "name": "Intervallo di tempo",
+          "description": "Periodo di tempo per le statistiche top."
+        }
+      }
+    },
+    "set_update_interval": {
+      "name": "Imposta intervallo di aggiornamento",
+      "description": "Regola dinamicamente gli intervalli di aggiornamento per i sensori di un utente.",
+      "fields": {
+        "username": {
+          "name": "Nome utente",
+          "description": "Nome utente Spotify per cui esportare i dati."
+        },
+        "now_playing_interval": {
+          "name": "Intervallo 'In riproduzione' (sec.)",
+          "description": "Intervallo in secondi per il sensore in riproduzione (30-300)."
+        },
+        "recently_played_interval": {
+          "name": "Intervallo 'Riprodotto recentemente' (sec.)",
+          "description": "Intervallo in secondi per il sensore delle riproduzioni recenti (300-3600)."
+        }
+      }
+    },
+    "refresh_now_playing": {
+      "name": "Aggiorna in riproduzione",
+      "description": "Aggiorna immediatamente il sensore di riproduzione corrente per un utente.",
+      "fields": {
+        "username": {
+          "name": "Nome utente",
+          "description": "Nome utente Spotify per cui esportare i dati."
+        }
+      }
+    }
+  }
+}

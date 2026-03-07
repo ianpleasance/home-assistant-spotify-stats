@@ -1,0 +1,156 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Spotify Statistieken instellen",
+        "description": "Voer uw Spotify-gebruikersnaam en polling-intervallen in. Daarna wordt u doorgestuurd naar Spotify om toegang te verlenen.",
+        "data": {
+          "username": "Spotify-gebruikersnaam",
+          "now_playing_interval": "Updateinterval 'Nu bezig' (seconden)",
+          "recently_played_interval": "Updateinterval 'Onlangs afgespeeld' (seconden)"
+        }
+      },
+      "pick_implementation": {
+        "title": "Select Authentication Method"
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbinding met Spotify mislukt",
+      "invalid_auth": "Ongeldige verificatie",
+      "unknown": "Onverwachte fout"
+    },
+    "abort": {
+      "already_configured": "Dit Spotify-account is al geconfigureerd",
+      "missing_credentials": "Applicatiereferenties niet geconfigureerd. Ga naar Instellingen → Apparaten en diensten → Applicatiereferenties en voeg uw Spotify Client ID en Client Secret eerst toe.",
+      "oauth_error": "OAuth-autorisatie mislukt. Probeer het opnieuw."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Spotify Statistieken opties",
+        "description": "Polling-intervallen voor dit account bijwerken.",
+        "data": {
+          "now_playing_interval": "Updateinterval 'Nu bezig' (seconden)",
+          "recently_played_interval": "Updateinterval 'Onlangs afgespeeld' (seconden)"
+        }
+      }
+    }
+  },
+  "services": {
+    "export_followed_artists": {
+      "name": "Gevolgde artiesten exporteren",
+      "description": "Alle gevolgde artiesten met volledige metadata exporteren naar een JSON-bestand.",
+      "fields": {
+        "username": {
+          "name": "Gebruikersnaam",
+          "description": "Spotify-gebruikersnaam waarvoor gegevens worden geëxporteerd."
+        },
+        "filepath": {
+          "name": "Bestandspad",
+          "description": "Absoluut pad om het bestand op te slaan."
+        }
+      }
+    },
+    "export_saved_library": {
+      "name": "Opgeslagen bibliotheek exporteren",
+      "description": "Opgeslagen albums en nummers met volledige metadata exporteren naar een JSON-bestand.",
+      "fields": {
+        "username": {
+          "name": "Gebruikersnaam",
+          "description": "Spotify-gebruikersnaam waarvoor gegevens worden geëxporteerd."
+        },
+        "filepath": {
+          "name": "Bestandspad",
+          "description": "Absoluut pad om het bestand op te slaan."
+        }
+      }
+    },
+    "export_playlists": {
+      "name": "Afspeellijsten exporteren",
+      "description": "Alle afspeellijsten met volledige nummerlijsten exporteren naar een JSON-bestand.",
+      "fields": {
+        "username": {
+          "name": "Gebruikersnaam",
+          "description": "Spotify-gebruikersnaam waarvoor gegevens worden geëxporteerd."
+        },
+        "filepath": {
+          "name": "Bestandspad",
+          "description": "Absoluut pad om het bestand op te slaan."
+        }
+      }
+    },
+    "export_recently_played_csv": {
+      "name": "Recent afgespeeld exporteren naar CSV",
+      "description": "Recent afgespeelde nummers exporteren naar CSV voor langetermijnregistratie.",
+      "fields": {
+        "username": {
+          "name": "Gebruikersnaam",
+          "description": "Spotify-gebruikersnaam waarvoor gegevens worden geëxporteerd."
+        },
+        "filepath": {
+          "name": "Bestandspad",
+          "description": "Absoluut pad om het bestand op te slaan."
+        },
+        "append": {
+          "name": "Toevoegmodus",
+          "description": "Toevoegen aan bestaand bestand (voorkomt duplicaten)."
+        },
+        "include_audio_features": {
+          "name": "Audiokenmerken opnemen",
+          "description": "Audioanalysegegevens ophalen (dansbaarheid, energie, enz.). Dit is langzamer."
+        }
+      }
+    },
+    "export_top_stats_csv": {
+      "name": "Top-statistieken exporteren naar CSV",
+      "description": "Momentopname van topkunstenaars of -nummers exporteren naar CSV.",
+      "fields": {
+        "username": {
+          "name": "Gebruikersnaam",
+          "description": "Spotify-gebruikersnaam waarvoor gegevens worden geëxporteerd."
+        },
+        "filepath": {
+          "name": "Bestandspad",
+          "description": "Absoluut pad om het bestand op te slaan."
+        },
+        "entity_type": {
+          "name": "Entiteitstype",
+          "description": "Artiesten of nummers exporteren."
+        },
+        "time_range": {
+          "name": "Tijdsbereik",
+          "description": "Tijdsperiode voor topstatistieken."
+        }
+      }
+    },
+    "set_update_interval": {
+      "name": "Updateinterval instellen",
+      "description": "Updateintervallen voor de sensoren van een gebruiker dynamisch aanpassen.",
+      "fields": {
+        "username": {
+          "name": "Gebruikersnaam",
+          "description": "Spotify-gebruikersnaam waarvoor gegevens worden geëxporteerd."
+        },
+        "now_playing_interval": {
+          "name": "'Nu bezig' interval (sec.)",
+          "description": "Updateinterval in seconden voor de sensor 'Nu bezig' (30-300)."
+        },
+        "recently_played_interval": {
+          "name": "'Onlangs afgespeeld' interval (sec.)",
+          "description": "Updateinterval in seconden voor de sensor 'Onlangs afgespeeld' (300-3600)."
+        }
+      }
+    },
+    "refresh_now_playing": {
+      "name": "Nu bezig vernieuwen",
+      "description": "De sensor 'Nu bezig' onmiddellijk vernieuwen voor een gebruiker.",
+      "fields": {
+        "username": {
+          "name": "Gebruikersnaam",
+          "description": "Spotify-gebruikersnaam waarvoor gegevens worden geëxporteerd."
+        }
+      }
+    }
+  }
+}

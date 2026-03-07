@@ -1,0 +1,156 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Spotify統計のセットアップ",
+        "description": "Spotifyのユーザー名とポーリング間隔を入力してください。送信後、アクセスを承認するためにSpotifyにリダイレクトされます。",
+        "data": {
+          "username": "Spotifyユーザー名",
+          "now_playing_interval": "「再生中」更新間隔（秒）",
+          "recently_played_interval": "「最近再生」更新間隔（秒）"
+        }
+      },
+      "pick_implementation": {
+        "title": "Select Authentication Method"
+      }
+    },
+    "error": {
+      "cannot_connect": "Spotifyへの接続に失敗しました",
+      "invalid_auth": "認証が無効です",
+      "unknown": "予期しないエラーが発生しました"
+    },
+    "abort": {
+      "already_configured": "このSpotifyアカウントはすでに設定されています",
+      "missing_credentials": "アプリケーション認証情報が設定されていません。設定 → デバイスとサービス → アプリケーション認証情報に移動し、Spotify Client IDとClient Secretを先に追加してください。",
+      "oauth_error": "OAuth認証に失敗しました。もう一度お試しください。"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Spotify統計オプション",
+        "description": "このアカウントのポーリング間隔を更新します。",
+        "data": {
+          "now_playing_interval": "「再生中」更新間隔（秒）",
+          "recently_played_interval": "「最近再生」更新間隔（秒）"
+        }
+      }
+    }
+  },
+  "services": {
+    "export_followed_artists": {
+      "name": "フォロー中アーティストをエクスポート",
+      "description": "フォローしているすべてのアーティストを完全なメタデータとともにJSONファイルにエクスポートします。",
+      "fields": {
+        "username": {
+          "name": "ユーザー名",
+          "description": "データをエクスポートするSpotifyユーザー名。"
+        },
+        "filepath": {
+          "name": "ファイルパス",
+          "description": "ファイルを保存する絶対パス。"
+        }
+      }
+    },
+    "export_saved_library": {
+      "name": "保存済みライブラリをエクスポート",
+      "description": "保存済みアルバムとトラックを完全なメタデータとともにJSONファイルにエクスポートします。",
+      "fields": {
+        "username": {
+          "name": "ユーザー名",
+          "description": "データをエクスポートするSpotifyユーザー名。"
+        },
+        "filepath": {
+          "name": "ファイルパス",
+          "description": "ファイルを保存する絶対パス。"
+        }
+      }
+    },
+    "export_playlists": {
+      "name": "プレイリストをエクスポート",
+      "description": "すべてのプレイリストを完全なトラックリストとともにJSONファイルにエクスポートします。",
+      "fields": {
+        "username": {
+          "name": "ユーザー名",
+          "description": "データをエクスポートするSpotifyユーザー名。"
+        },
+        "filepath": {
+          "name": "ファイルパス",
+          "description": "ファイルを保存する絶対パス。"
+        }
+      }
+    },
+    "export_recently_played_csv": {
+      "name": "最近再生した曲をCSVにエクスポート",
+      "description": "最近再生したトラックを長期追跡用にCSVにエクスポートします。",
+      "fields": {
+        "username": {
+          "name": "ユーザー名",
+          "description": "データをエクスポートするSpotifyユーザー名。"
+        },
+        "filepath": {
+          "name": "ファイルパス",
+          "description": "ファイルを保存する絶対パス。"
+        },
+        "append": {
+          "name": "追記モード",
+          "description": "既存ファイルに追記します（重複を防ぎます）。"
+        },
+        "include_audio_features": {
+          "name": "オーディオ特性を含める",
+          "description": "オーディオ分析データ（ダンサビリティ、エネルギーなど）を取得します。処理が遅くなります。"
+        }
+      }
+    },
+    "export_top_stats_csv": {
+      "name": "トップ統計をCSVにエクスポート",
+      "description": "トップアーティストまたはトラックのスナップショットをCSVにエクスポートします。",
+      "fields": {
+        "username": {
+          "name": "ユーザー名",
+          "description": "データをエクスポートするSpotifyユーザー名。"
+        },
+        "filepath": {
+          "name": "ファイルパス",
+          "description": "ファイルを保存する絶対パス。"
+        },
+        "entity_type": {
+          "name": "エンティティタイプ",
+          "description": "アーティストまたはトラックをエクスポート。"
+        },
+        "time_range": {
+          "name": "期間",
+          "description": "トップ統計の期間。"
+        }
+      }
+    },
+    "set_update_interval": {
+      "name": "更新間隔を設定",
+      "description": "ユーザーのセンサーの更新間隔を動的に調整します。",
+      "fields": {
+        "username": {
+          "name": "ユーザー名",
+          "description": "データをエクスポートするSpotifyユーザー名。"
+        },
+        "now_playing_interval": {
+          "name": "「再生中」更新間隔（秒）",
+          "description": "再生中センサーの更新間隔（秒）（30-300）。"
+        },
+        "recently_played_interval": {
+          "name": "「最近再生」更新間隔（秒）",
+          "description": "最近再生センサーの更新間隔（秒）（300-3600）。"
+        }
+      }
+    },
+    "refresh_now_playing": {
+      "name": "再生中を更新",
+      "description": "ユーザーの再生中センサーを即座に更新します。",
+      "fields": {
+        "username": {
+          "name": "ユーザー名",
+          "description": "データをエクスポートするSpotifyユーザー名。"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Opsæt Spotify-statistik",
+        "description": "Indtast dit Spotify-brugernavn og opdateringsintervaller. Du bliver viderestillet til Spotify for at godkende adgang.",
+        "data": {
+          "username": "Spotify-brugernavn",
+          "now_playing_interval": "Opdateringsinterval for nu afspilles (sekunder)",
+          "recently_played_interval": "Opdateringsinterval for senest afspillet (sekunder)"
+        }
+      },
+      "pick_implementation": {
+        "title": "Select Authentication Method"
+      }
+    },
+    "error": {
+      "cannot_connect": "Forbindelsen til Spotify mislykkedes",
+      "invalid_auth": "Ugyldig godkendelse",
+      "unknown": "Uventet fejl opstod"
+    },
+    "abort": {
+      "already_configured": "Denne Spotify-konto er allerede konfigureret",
+      "missing_credentials": "Applikationsoplysninger ikke konfigureret. Gå til Indstillinger → Enheder og tjenester → Applikationsoplysninger og tilføj dit Spotify Client ID og Client Secret først.",
+      "oauth_error": "OAuth-godkendelse mislykkedes. Prøv igen."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Spotify-statistikindstillinger",
+        "description": "Opdater opdateringsintervaller for denne konto.",
+        "data": {
+          "now_playing_interval": "Opdateringsinterval for nu afspilles (sekunder)",
+          "recently_played_interval": "Opdateringsinterval for senest afspillet (sekunder)"
+        }
+      }
+    }
+  },
+  "services": {
+    "export_followed_artists": {
+      "name": "Eksportér fulgte kunstnere",
+      "description": "Eksportér alle fulgte kunstnere med komplet metadata til en JSON-fil.",
+      "fields": {
+        "username": {
+          "name": "Brugernavn",
+          "description": "Spotify-brugernavn at eksportere data for."
+        },
+        "filepath": {
+          "name": "Filsti",
+          "description": "Absolut sti til at gemme filen."
+        }
+      }
+    },
+    "export_saved_library": {
+      "name": "Eksportér gemt bibliotek",
+      "description": "Eksportér gemte albums og sange med komplet metadata til en JSON-fil.",
+      "fields": {
+        "username": {
+          "name": "Brugernavn",
+          "description": "Spotify-brugernavn at eksportere data for."
+        },
+        "filepath": {
+          "name": "Filsti",
+          "description": "Absolut sti til at gemme filen."
+        }
+      }
+    },
+    "export_playlists": {
+      "name": "Eksportér spillelister",
+      "description": "Eksportér alle spillelister med komplette sanglister til en JSON-fil.",
+      "fields": {
+        "username": {
+          "name": "Brugernavn",
+          "description": "Spotify-brugernavn at eksportere data for."
+        },
+        "filepath": {
+          "name": "Filsti",
+          "description": "Absolut sti til at gemme filen."
+        }
+      }
+    },
+    "export_recently_played_csv": {
+      "name": "Eksportér nyligt afspillede til CSV",
+      "description": "Eksportér nyligt afspillede sange til CSV til langtidssporing.",
+      "fields": {
+        "username": {
+          "name": "Brugernavn",
+          "description": "Spotify-brugernavn at eksportere data for."
+        },
+        "filepath": {
+          "name": "Filsti",
+          "description": "Absolut sti til at gemme filen."
+        },
+        "append": {
+          "name": "Tilføjelsestilstand",
+          "description": "Tilføj til eksisterende fil (forhindrer dubletter)."
+        },
+        "include_audio_features": {
+          "name": "Inkludér lydfunktioner",
+          "description": "Hent lydanalysdata (dansebarhed, energi osv.). Dette er langsommere."
+        }
+      }
+    },
+    "export_top_stats_csv": {
+      "name": "Eksportér topstatistik til CSV",
+      "description": "Eksportér øjebliksbillede af topkunstnere eller -sange til CSV.",
+      "fields": {
+        "username": {
+          "name": "Brugernavn",
+          "description": "Spotify-brugernavn at eksportere data for."
+        },
+        "filepath": {
+          "name": "Filsti",
+          "description": "Absolut sti til at gemme filen."
+        },
+        "entity_type": {
+          "name": "Enhedstype",
+          "description": "Eksportér kunstnere eller sange."
+        },
+        "time_range": {
+          "name": "Tidsinterval",
+          "description": "Tidsperiode for topstatistik."
+        }
+      }
+    },
+    "set_update_interval": {
+      "name": "Indstil opdateringsinterval",
+      "description": "Juster dynamisk opdateringsintervaller for en brugers sensorer.",
+      "fields": {
+        "username": {
+          "name": "Brugernavn",
+          "description": "Spotify-brugernavn at eksportere data for."
+        },
+        "now_playing_interval": {
+          "name": "Interval for nu afspilles (sek.)",
+          "description": "Opdateringsinterval i sekunder for nu afspilles-sensoren (30-300)."
+        },
+        "recently_played_interval": {
+          "name": "Interval for nyligt afspillet (sek.)",
+          "description": "Opdateringsinterval i sekunder for nyligt afspillet-sensoren (300-3600)."
+        }
+      }
+    },
+    "refresh_now_playing": {
+      "name": "Opdatér nu afspilles",
+      "description": "Opdatér nu afspilles-sensoren øjeblikkeligt for en bruger.",
+      "fields": {
+        "username": {
+          "name": "Brugernavn",
+          "description": "Spotify-brugernavn at eksportere data for."
+        }
+      }
+    }
+  }
+}
