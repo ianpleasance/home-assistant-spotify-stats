@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers import config_entry_oauth2_flow
 
-from .const import DOMAIN
+from .const import DOMAIN, SETUP_TIMEOUT_SECONDS
 from .coordinator import SpotifyStatsCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     try:
         # Wrap setup in timeout to prevent hanging indefinitely
-        async with asyncio.timeout(120):  # 2 minute timeout
+        async with asyncio.timeout(SETUP_TIMEOUT_SECONDS):
             # Wait for Spotify integration to be ready
             await hass.config_entries.async_wait_component(entry)
             
@@ -107,7 +107,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             return True
         
     except asyncio.TimeoutError:
-        _LOGGER.error("Spotify Statistics setup timed out after 2 minutes")
+        _LOGGER.error("Spotify Statistics setup timed out after %s seconds", SETUP_TIMEOUT_SECONDS)
         raise ConfigEntryNotReady("Spotify integration taking too long to initialize, will retry")
         
     except ConfigEntryAuthFailed as err:

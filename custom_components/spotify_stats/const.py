@@ -4,6 +4,21 @@ from homeassistant.const import Platform
 DOMAIN = "spotify_stats"
 PLATFORMS = [Platform.SENSOR]
 
+# --- Startup tuning ---
+# How long async_setup_entry is allowed to take (OAuth + first data fetch)
+# before giving up and telling HA to retry. Raise this if your library
+# (playlists/followed artists) is large enough that the first fetch
+# routinely takes longer than the default.
+SETUP_TIMEOUT_SECONDS = 300  # was 120 (2 min); now 5 min
+
+# If True, the very first coordinator refresh (during setup) skips the
+# expensive "top artists/tracks" calls (6 sequential API calls: 3 time
+# ranges x artists/tracks). They'll be fetched on the first regular
+# update cycle after startup instead, once HA has already finished
+# loading. Set to False to restore the original behaviour (fetch
+# everything, including top stats, before setup is considered complete).
+SKIP_TOP_STATS_ON_FIRST_REFRESH = True
+
 # Configuration constants
 CONF_USERNAME = "username"
 CONF_CLIENT_ID = "client_id"

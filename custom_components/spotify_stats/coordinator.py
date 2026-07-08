@@ -21,6 +21,7 @@ from .const import (
     CONF_RECENTLY_PLAYED_INTERVAL,
     CONF_USERNAME,
     DOMAIN,
+    SKIP_TOP_STATS_ON_FIRST_REFRESH,
     SENSOR_FOLLOWED_ARTISTS,
     SENSOR_NOW_PLAYING,
     SENSOR_RECENTLY_PLAYED,
@@ -76,6 +77,10 @@ class SpotifyStatsCoordinator(DataUpdateCoordinator):
         # Track last update times for different data types
         self._last_followed_update = None
         self._last_top_stats_update = None
+
+        # Tracks whether the coordinator has completed its first refresh
+        # (used to optionally skip expensive calls during initial setup)
+        self._first_refresh_done = False
         
         _LOGGER.debug("SpotifyStatsCoordinator: About to call super().__init__")
 
@@ -175,14 +180,28 @@ class SpotifyStatsCoordinator(DataUpdateCoordinator):
             else:
                 data[SENSOR_FOLLOWED_ARTISTS] = self.data.get(SENSOR_FOLLOWED_ARTISTS)
 
-            # Update top stats daily
-            if self._should_update_top_stats():
+            # Update top stats daily - but optionally skip entirely on the
+            # very first refresh (during setup), since it's 6 sequential
+            # API calls (3 time ranges x artists/tracks). If skipped here,
+            # _last_top_stats_update stays None, so the very next regular
+            # update cycle will fetch it as normal - it's only deferred
+            # past setup, not lost.
+            skip_for_first_refresh = (
+                SKIP_TOP_STATS_ON_FIRST_REFRESH and not self._first_refresh_done
+            )
+            if self._should_update_top_stats() and not skip_for_first_refresh:
                 data.update(await self.hass.async_add_executor_job(
                     self._fetch_top_stats
                 ))
                 self._last_top_stats_update = dt_util.utcnow()
             else:
-                # Use cached data
+                if skip_for_first_refresh:
+                    _LOGGER.debug(
+                        "_async_update_data: Skipping top stats fetch on first refresh "
+                        "(SKIP_TOP_STATS_ON_FIRST_REFRESH is True)"
+                    )
+                # Use cached data if we have any yet (self.data is None
+                # before the first successful refresh completes)
                 for key in [
                     SENSOR_TOP_ARTISTS_4WEEKS,
                     SENSOR_TOP_ARTISTS_6MONTHS,
@@ -191,7 +210,7 @@ class SpotifyStatsCoordinator(DataUpdateCoordinator):
                     SENSOR_TOP_TRACKS_6MONTHS,
                     SENSOR_TOP_TRACKS_ALLTIME,
                 ]:
-                    data[key] = self.data.get(key)
+                    data[key] = self.data.get(key) if self.data else None
 
             _LOGGER.debug("_async_update_data: Fetching playlists")
             data[SENSOR_USER_PLAYLISTS] = await self.hass.async_add_executor_job(
@@ -210,6 +229,8 @@ class SpotifyStatsCoordinator(DataUpdateCoordinator):
                 self._fetch_saved_albums
             )
             _LOGGER.debug("_async_update_data: Saved albums fetched successfully")
+
+            self._first_refresh_done = True
 
             return data
 
