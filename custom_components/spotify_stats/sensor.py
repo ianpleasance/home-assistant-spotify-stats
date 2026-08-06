@@ -96,6 +96,20 @@ class SpotifyStatsBaseSensor(CoordinatorEntity, SensorEntity):
             entry_type=DeviceEntryType.SERVICE,
         )
 
+    def _get_section(self, key: str) -> dict[str, Any]:
+        """Safely fetch a section of coordinator data.
+
+        self.coordinator.data.get(key, {}) is NOT safe on its own: the {}
+        default only applies when `key` is missing entirely. If the
+        coordinator's data dict has `key` present but explicitly set to None
+        (e.g. that stat's fetch failed while others succeeded), .get(key, {})
+        still returns None rather than the default, which then crashes the
+        very next .get() call downstream. Guard against both coordinator.data
+        itself being None and the individual section being None.
+        """
+        data = self.coordinator.data or {}
+        return data.get(key) or {}
+
     def _base_attributes(self) -> dict[str, Any]:
         """Return base attributes common to all sensors."""
         if self.coordinator.last_update_success:
@@ -123,13 +137,13 @@ class SpotifyNowPlayingSensor(SpotifyStatsBaseSensor):
     @property
     def native_value(self) -> str:
         """Return the state of the sensor."""
-        data = self.coordinator.data.get(SENSOR_NOW_PLAYING, {})
+        data = self._get_section(SENSOR_NOW_PLAYING)
         return data.get("state", "idle")
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional attributes."""
-        data = self.coordinator.data.get(SENSOR_NOW_PLAYING, {})
+        data = self._get_section(SENSOR_NOW_PLAYING)
         attrs = self._base_attributes()
 
         if data.get("state") == "idle":
@@ -168,13 +182,13 @@ class SpotifyRecentlyPlayedSensor(SpotifyStatsBaseSensor):
     @property
     def native_value(self) -> str | None:
         """Return the timestamp of the most recent track."""
-        data = self.coordinator.data.get(SENSOR_RECENTLY_PLAYED, {})
+        data = self._get_section(SENSOR_RECENTLY_PLAYED)
         return data.get("last_played")
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional attributes."""
-        data = self.coordinator.data.get(SENSOR_RECENTLY_PLAYED, {})
+        data = self._get_section(SENSOR_RECENTLY_PLAYED)
         attrs = self._base_attributes()
         attrs.update({
             "count": data.get("count", 0),
@@ -198,13 +212,13 @@ class SpotifyFollowedArtistsSensor(SpotifyStatsBaseSensor):
     @property
     def native_value(self) -> int:
         """Return the count of followed artists."""
-        data = self.coordinator.data.get(SENSOR_FOLLOWED_ARTISTS, {})
+        data = self._get_section(SENSOR_FOLLOWED_ARTISTS)
         return data.get("count", 0)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional attributes."""
-        data = self.coordinator.data.get(SENSOR_FOLLOWED_ARTISTS, {})
+        data = self._get_section(SENSOR_FOLLOWED_ARTISTS)
         attrs = self._base_attributes()
         attrs.update({
             "artists": data.get("artists", []),
@@ -233,13 +247,13 @@ class SpotifyTopArtistsSensor(SpotifyStatsBaseSensor):
     @property
     def native_value(self) -> int:
         """Return the count of top artists."""
-        data = self.coordinator.data.get(f"top_artists_{self.period}", {})
+        data = self._get_section(f"top_artists_{self.period}")
         return data.get("count", 0)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional attributes."""
-        data = self.coordinator.data.get(f"top_artists_{self.period}", {})
+        data = self._get_section(f"top_artists_{self.period}")
         attrs = self._base_attributes()
         attrs.update({
             "period": data.get("period"),
@@ -268,13 +282,13 @@ class SpotifyTopTracksSensor(SpotifyStatsBaseSensor):
     @property
     def native_value(self) -> int:
         """Return the count of top tracks."""
-        data = self.coordinator.data.get(f"top_tracks_{self.period}", {})
+        data = self._get_section(f"top_tracks_{self.period}")
         return data.get("count", 0)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional attributes."""
-        data = self.coordinator.data.get(f"top_tracks_{self.period}", {})
+        data = self._get_section(f"top_tracks_{self.period}")
         attrs = self._base_attributes()
         attrs.update({
             "period": data.get("period"),
@@ -298,13 +312,13 @@ class SpotifyUserPlaylistsSensor(SpotifyStatsBaseSensor):
     @property
     def native_value(self) -> int:
         """Return the count of playlists."""
-        data = self.coordinator.data.get(SENSOR_USER_PLAYLISTS, {})
+        data = self._get_section(SENSOR_USER_PLAYLISTS)
         return data.get("count", 0)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional attributes."""
-        data = self.coordinator.data.get(SENSOR_USER_PLAYLISTS, {})
+        data = self._get_section(SENSOR_USER_PLAYLISTS)
         attrs = self._base_attributes()
         attrs["playlists"] = data.get("playlists", [])
         return attrs
@@ -325,13 +339,13 @@ class SpotifySavedTracksSensor(SpotifyStatsBaseSensor):
     @property
     def native_value(self) -> int:
         """Return the count of saved tracks."""
-        data = self.coordinator.data.get(SENSOR_SAVED_TRACKS, {})
+        data = self._get_section(SENSOR_SAVED_TRACKS)
         return data.get("count", 0)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional attributes."""
-        data = self.coordinator.data.get(SENSOR_SAVED_TRACKS, {})
+        data = self._get_section(SENSOR_SAVED_TRACKS)
         attrs = self._base_attributes()
         attrs["tracks"] = data.get("tracks", [])
         return attrs
@@ -352,13 +366,14 @@ class SpotifySavedAlbumsSensor(SpotifyStatsBaseSensor):
     @property
     def native_value(self) -> int:
         """Return the count of saved albums."""
-        data = self.coordinator.data.get(SENSOR_SAVED_ALBUMS, {})
+        data = self._get_section(SENSOR_SAVED_ALBUMS)
         return data.get("count", 0)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional attributes."""
-        data = self.coordinator.data.get(SENSOR_SAVED_ALBUMS, {})
+        data = self._get_section(SENSOR_SAVED_ALBUMS)
         attrs = self._base_attributes()
         attrs["albums"] = data.get("albums", [])
         return attrs
+

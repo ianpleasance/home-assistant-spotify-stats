@@ -10,6 +10,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers import config_entry_oauth2_flow
+from homeassistant.setup import async_wait_component as async_wait_for_domain
 
 from .const import DOMAIN, SETUP_TIMEOUT_SECONDS
 from .coordinator import SpotifyStatsCoordinator
@@ -30,8 +31,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     try:
         # Wrap setup in timeout to prevent hanging indefinitely
         async with asyncio.timeout(SETUP_TIMEOUT_SECONDS):
-            # Wait for Spotify integration to be ready
-            await hass.config_entries.async_wait_component(entry)
+            # Wait for the core Spotify integration to be ready.
+            # NOTE: hass.config_entries.async_wait_component(entry) resolves
+            # to entry.domain internally - since `entry` here is this very
+            # spotify_stats entry, that call was waiting on the
+            # "spotify_stats" domain (itself, still mid-setup) rather than
+            # on "spotify" as intended, causing an unresolvable self-wait
+            # that always ran out the clock at the bootstrap timeout.
+            # async_wait_component from homeassistant.setup takes a domain
+            # string directly and correctly waits on a *different*
+            # integration's setup.
+            await async_wait_for_domain(hass, "spotify")
             
             # Get OAuth2 session - try to get implementation
             try:
@@ -145,3 +155,4 @@ async def async_setup_services(hass: HomeAssistant) -> None:
     # Only setup services once
     if DOMAIN not in hass.services.async_services():
         await setup_services(hass)
+
