@@ -47,6 +47,11 @@ class SpotifyStatsFlowHandler(
         self._username: str | None = None
         self._now_playing_interval: int = DEFAULT_NOW_PLAYING_INTERVAL
         self._recently_played_interval: int = DEFAULT_RECENTLY_PLAYED_INTERVAL
+        # Set only when this flow was started as a reauthentication
+        # (via async_step_reauth), so async_step_user and
+        # async_oauth_create_entry know to update the existing entry
+        # in place rather than creating a new one / aborting as a duplicate.
+        self._reauth_entry: ConfigEntry | None = None
 
     @property
     def logger(self) -> logging.Logger:
@@ -57,6 +62,65 @@ class SpotifyStatsFlowHandler(
     def extra_authorize_data(self) -> dict[str, Any]:
         """Extra data that needs to be appended to the authorize url."""
         return {"scope": " ".join(SPOTIFY_SCOPES)}
+
+    async def async_step_reauth(
+        self, entry_data: dict[str, Any]
+    ) -> FlowResult:
+        """Handle reauthentication triggered by ConfigEntryAuthFailed.
+
+        Home Assistant calls this automatically when the coordinator raises
+        ConfigEntryAuthFailed (e.g. the refresh token was revoked/expired
+        and Spotify's token endpoint rejected the refresh attempt with a
+        400). Without this method, there was no clean way to actually
+        re-authenticate - the "Reauthenticate" prompt had nowhere to go.
+        """
+        self._reauth_entry = self.hass.config_entries.async_get_entry(
+            self.context["entry_id"]
+        )
+        # Reuse the existing entry's stored values so we don't need to
+        # ask the user to re-enter their username/intervals just to
+        # refresh a token.
+        if self._reauth_entry is not None:
+            self._username = self._reauth_entry.data.get(CONF_USERNAME)
+            self._now_playing_interval = self._reauth_entry.data.get(
+                CONF_NOW_PLAYING_INTERVAL, DEFAULT_NOW_PLAYING_INTERVAL
+            )
+            self._recently_played_interval = self._reauth_entry.data.get(
+                CONF_RECENTLY_PLAYED_INTERVAL, DEFAULT_RECENTLY_PLAYED_INTERVAL
+            )
+        return await self.async_step_reauth_confirm()
+
+    async def async_step_reauth_confirm(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Ask the user to confirm before sending them to Spotify's login."""
+        if user_input is None:
+            return self.async_show_form(
+                step_id="reauth_confirm",
+                description_placeholders={
+                    "username": self._username or "",
+                },
+            )
+
+        # Same implementation-registration step as async_step_user, needed
+        # so the OAuth authorize URL can actually be built.
+        implementations = await config_entry_oauth2_flow.async_get_implementations(
+            self.hass, "spotify"
+        )
+        if not implementations:
+            return self.async_abort(
+                reason="missing_configuration",
+                description_placeholders={
+                    "docs_url": "https://www.home-assistant.io/integrations/spotify/"
+                },
+            )
+        for impl_domain, impl in implementations.items():
+            config_entry_oauth2_flow.async_register_implementation(
+                self.hass, self.DOMAIN, impl
+            )
+            break
+
+        return await self.async_step_pick_implementation()
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -94,15 +158,19 @@ class SpotifyStatsFlowHandler(
                 CONF_RECENTLY_PLAYED_INTERVAL, DEFAULT_RECENTLY_PLAYED_INTERVAL
             )
             
-            # Check if username already exists
+            # Check if username already exists - but not during a reauth
+            # flow, where the existing entry legitimately shares this
+            # username with itself (that's not a duplicate, it's the
+            # same account being re-authenticated).
             username = sanitize_username(self._username)
-            existing_usernames = [
-                sanitize_username(entry.data.get(CONF_USERNAME, ""))
-                for entry in self._async_current_entries()
-            ]
-            
-            if username in existing_usernames:
-                return self.async_abort(reason="already_configured")
+            if self._reauth_entry is None:
+                existing_usernames = [
+                    sanitize_username(entry.data.get(CONF_USERNAME, ""))
+                    for entry in self._async_current_entries()
+                ]
+
+                if username in existing_usernames:
+                    return self.async_abort(reason="already_configured")
             
             # Continue to OAuth step
             return await self.async_step_pick_implementation()
@@ -142,7 +210,26 @@ class SpotifyStatsFlowHandler(
     async def async_oauth_create_entry(self, data: dict[str, Any]) -> FlowResult:
         """Create an entry for the flow."""
         _LOGGER.info("async_oauth_create_entry called for user: %s", self._username)
-        
+
+        # If this is a reauth flow, update the EXISTING entry's token data
+        # in place and reload it, rather than creating a brand-new entry
+        # (which would just leave the old broken one sitting there, likely
+        # colliding with the "already_configured" duplicate-username check
+        # if attempted again).
+        if self._reauth_entry is not None:
+            new_data = {**self._reauth_entry.data, **data}
+            new_data[CONF_USERNAME] = self._username
+            new_data[CONF_NOW_PLAYING_INTERVAL] = self._now_playing_interval
+            new_data[CONF_RECENTLY_PLAYED_INTERVAL] = self._recently_played_interval
+
+            self.hass.config_entries.async_update_entry(
+                self._reauth_entry, data=new_data
+            )
+            await self.hass.config_entries.async_reload(
+                self._reauth_entry.entry_id
+            )
+            return self.async_abort(reason="reauth_successful")
+
         # Combine OAuth data with our stored values
         data[CONF_USERNAME] = self._username
         data[CONF_NOW_PLAYING_INTERVAL] = self._now_playing_interval
@@ -218,3 +305,4 @@ class SpotifyStatsOptionsFlowHandler(config_entries.OptionsFlow):
                 }
             ),
         )
+

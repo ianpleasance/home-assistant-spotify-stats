@@ -12,6 +12,10 @@
       },
       "pick_implementation": {
         "title": "Select Authentication Method"
+      },
+      "reauth_confirm": {
+        "title": "Spotify-Statistik erneut authentifizieren",
+        "description": "Deine Spotify-Statistik-Verbindung für **{username}** muss erneut autorisiert werden – Spotify hat das gespeicherte Aktualisierungstoken abgelehnt. Klicke auf Senden, um zu Spotify weitergeleitet zu werden und dich erneut anzumelden."
       }
     },
     "error": {
@@ -22,7 +26,8 @@
     "abort": {
       "already_configured": "Dieses Spotify-Konto ist bereits konfiguriert",
       "missing_credentials": "Anmeldedaten nicht konfiguriert. Bitte gehe zu Einstellungen → Geräte & Dienste → Anmeldedaten und füge zuerst deine Spotify Client-ID und den Client-Secret hinzu.",
-      "oauth_error": "OAuth-Autorisierung fehlgeschlagen. Bitte versuche es erneut."
+      "oauth_error": "OAuth-Autorisierung fehlgeschlagen. Bitte versuche es erneut.",
+      "reauth_successful": "Die erneute Authentifizierung war erfolgreich"
     }
   },
   "options": {
@@ -154,3 +159,4 @@
     }
   }
 }
+

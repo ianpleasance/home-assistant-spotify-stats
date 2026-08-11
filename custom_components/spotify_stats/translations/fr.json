@@ -12,6 +12,10 @@
       },
       "pick_implementation": {
         "title": "Select Authentication Method"
+      },
+      "reauth_confirm": {
+        "title": "Réauthentifier les statistiques Spotify",
+        "description": "Votre connexion aux statistiques Spotify pour **{username}** doit être réautorisée : Spotify a rejeté le jeton d'actualisation stocké. Cliquez sur Envoyer pour être redirigé vers Spotify afin de vous reconnecter."
       }
     },
     "error": {
@@ -22,7 +26,8 @@
     "abort": {
       "already_configured": "Ce compte Spotify est déjà configuré",
       "missing_credentials": "Identifiants d'application non configurés. Veuillez aller dans Paramètres → Appareils et services → Identifiants d'application et ajouter votre Client ID et Client Secret Spotify d'abord.",
-      "oauth_error": "L'autorisation OAuth a échoué. Veuillez réessayer."
+      "oauth_error": "L'autorisation OAuth a échoué. Veuillez réessayer.",
+      "reauth_successful": "La réauthentification a réussi"
     }
   },
   "options": {
@@ -154,3 +159,4 @@
     }
   }
 }
+

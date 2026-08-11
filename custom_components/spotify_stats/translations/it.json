@@ -12,6 +12,10 @@
       },
       "pick_implementation": {
         "title": "Select Authentication Method"
+      },
+      "reauth_confirm": {
+        "title": "Ri-autentica Statistiche Spotify",
+        "description": "La tua connessione a Statistiche Spotify per **{username}** deve essere riautorizzata: Spotify ha rifiutato il token di aggiornamento memorizzato. Fai clic su Invia per essere reindirizzato a Spotify e accedere di nuovo."
       }
     },
     "error": {
@@ -22,7 +26,8 @@
     "abort": {
       "already_configured": "Questo account Spotify è già configurato",
       "missing_credentials": "Credenziali applicazione non configurate. Vai su Impostazioni → Dispositivi e servizi → Credenziali applicazione e aggiungi prima il tuo Client ID e Client Secret Spotify.",
-      "oauth_error": "Autorizzazione OAuth fallita. Riprova."
+      "oauth_error": "Autorizzazione OAuth fallita. Riprova.",
+      "reauth_successful": "La riautenticazione è riuscita"
     }
   },
   "options": {
@@ -154,3 +159,4 @@
     }
   }
 }
+

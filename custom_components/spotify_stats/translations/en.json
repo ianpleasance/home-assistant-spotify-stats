@@ -12,6 +12,10 @@
       },
       "pick_implementation": {
         "title": "Select Authentication Method"
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate Spotify Statistics",
+        "description": "Your Spotify Statistics connection for **{username}** needs to be re-authorized - Spotify rejected the stored refresh token. Click Submit to be redirected to Spotify to log in again."
       }
     },
     "error": {
@@ -22,7 +26,8 @@
     "abort": {
       "already_configured": "This Spotify account is already configured",
       "missing_credentials": "Application Credentials not configured. Please go to Settings → Devices & Services → Application Credentials and add your Spotify Client ID and Client Secret first.",
-      "oauth_error": "OAuth authorization failed. Please try again."
+      "oauth_error": "OAuth authorization failed. Please try again.",
+      "reauth_successful": "Re-authentication was successful"
     }
   },
   "options": {
@@ -154,3 +159,4 @@
     }
   }
 }
+

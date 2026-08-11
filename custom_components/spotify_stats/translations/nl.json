@@ -12,6 +12,10 @@
       },
       "pick_implementation": {
         "title": "Select Authentication Method"
+      },
+      "reauth_confirm": {
+        "title": "Spotify Statistieken opnieuw authenticeren",
+        "description": "Uw Spotify Statistieken-verbinding voor **{username}** moet opnieuw worden geautoriseerd – Spotify heeft het opgeslagen vernieuwingstoken geweigerd. Klik op Verzenden om naar Spotify te worden doorgestuurd en opnieuw in te loggen."
       }
     },
     "error": {
@@ -22,7 +26,8 @@
     "abort": {
       "already_configured": "Dit Spotify-account is al geconfigureerd",
       "missing_credentials": "Applicatiereferenties niet geconfigureerd. Ga naar Instellingen → Apparaten en diensten → Applicatiereferenties en voeg uw Spotify Client ID en Client Secret eerst toe.",
-      "oauth_error": "OAuth-autorisatie mislukt. Probeer het opnieuw."
+      "oauth_error": "OAuth-autorisatie mislukt. Probeer het opnieuw.",
+      "reauth_successful": "Herauthenticatie geslaagd"
     }
   },
   "options": {
@@ -154,3 +159,4 @@
     }
   }
 }
+

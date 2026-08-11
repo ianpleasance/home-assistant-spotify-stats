@@ -37,6 +37,7 @@ MAX_RECENTLY_PLAYED_INTERVAL = 3600
 # Spotify API scopes required
 SPOTIFY_SCOPES = [
     "user-read-currently-playing",
+    "user-read-playback-state",
     "user-read-recently-played",
     "user-top-read",
     "user-follow-read",

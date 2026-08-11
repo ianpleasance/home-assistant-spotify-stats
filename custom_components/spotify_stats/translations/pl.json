@@ -12,6 +12,10 @@
       },
       "pick_implementation": {
         "title": "Select Authentication Method"
+      },
+      "reauth_confirm": {
+        "title": "Uwierzytelnij ponownie Statystyki Spotify",
+        "description": "Połączenie Statystyk Spotify dla **{username}** wymaga ponownej autoryzacji – Spotify odrzucił zapisany token odświeżania. Kliknij Wyślij, aby zostać przekierowanym do Spotify i zalogować się ponownie."
       }
     },
     "error": {
@@ -22,7 +26,8 @@
     "abort": {
       "already_configured": "To konto Spotify jest już skonfigurowane",
       "missing_credentials": "Dane uwierzytelniające aplikacji nie są skonfigurowane. Przejdź do Ustawienia → Urządzenia i usługi → Dane uwierzytelniające aplikacji i najpierw dodaj swój Spotify Client ID i Client Secret.",
-      "oauth_error": "Autoryzacja OAuth nie powiodła się. Spróbuj ponownie."
+      "oauth_error": "Autoryzacja OAuth nie powiodła się. Spróbuj ponownie.",
+      "reauth_successful": "Ponowne uwierzytelnienie powiodło się"
     }
   },
   "options": {

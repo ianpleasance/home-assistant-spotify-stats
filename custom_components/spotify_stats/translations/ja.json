@@ -12,6 +12,10 @@
       },
       "pick_implementation": {
         "title": "Select Authentication Method"
+      },
+      "reauth_confirm": {
+        "title": "Spotify統計の再認証",
+        "description": "**{username}** のSpotify統計接続を再認証する必要があります。Spotifyが保存されている更新トークンを拒否しました。送信をクリックしてSpotifyにリダイレクトし、再度ログインしてください。"
       }
     },
     "error": {
@@ -22,7 +26,8 @@
     "abort": {
       "already_configured": "このSpotifyアカウントはすでに設定されています",
       "missing_credentials": "アプリケーション認証情報が設定されていません。設定 → デバイスとサービス → アプリケーション認証情報に移動し、Spotify Client IDとClient Secretを先に追加してください。",
-      "oauth_error": "OAuth認証に失敗しました。もう一度お試しください。"
+      "oauth_error": "OAuth認証に失敗しました。もう一度お試しください。",
+      "reauth_successful": "再認証に成功しました"
     }
   },
   "options": {
@@ -154,3 +159,4 @@
     }
   }
 }
+

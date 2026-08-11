@@ -12,6 +12,10 @@
       },
       "pick_implementation": {
         "title": "Select Authentication Method"
+      },
+      "reauth_confirm": {
+        "title": "Todenna Spotify-tilastot uudelleen",
+        "description": "Spotify-tilastoyhteytesi käyttäjälle **{username}** on valtuutettava uudelleen – Spotify hylkäsi tallennetun päivitystunnisteen. Napsauta Lähetä siirtyäksesi Spotifyhin kirjautuaksesi sisään uudelleen."
       }
     },
     "error": {
@@ -22,7 +26,8 @@
     "abort": {
       "already_configured": "Tämä Spotify-tili on jo määritetty",
       "missing_credentials": "Sovelluksen tunnistetietoja ei ole määritetty. Siirry kohtaan Asetukset → Laitteet ja palvelut → Sovelluksen tunnistetiedot ja lisää ensin Spotify Client ID ja Client Secret.",
-      "oauth_error": "OAuth-valtuutus epäonnistui. Yritä uudelleen."
+      "oauth_error": "OAuth-valtuutus epäonnistui. Yritä uudelleen.",
+      "reauth_successful": "Uudelleentodennus onnistui"
     }
   },
   "options": {
@@ -154,3 +159,4 @@
     }
   }
 }
+

@@ -12,6 +12,10 @@
       },
       "pick_implementation": {
         "title": "Select Authentication Method"
+      },
+      "reauth_confirm": {
+        "title": "Godkjenn Spotify-statistikk på nytt",
+        "description": "Spotify-statistikktilkoblingen din for **{username}** må godkjennes på nytt – Spotify avviste den lagrede oppdateringstokenen. Klikk Send for å bli omdirigert til Spotify for å logge inn igjen."
       }
     },
     "error": {
@@ -22,7 +26,8 @@
     "abort": {
       "already_configured": "Denne Spotify-kontoen er allerede konfigurert",
       "missing_credentials": "Applikasjonslegitimasjon ikke konfigurert. Gå til Innstillinger → Enheter og tjenester → Applikasjonslegitimasjon og legg til Spotify Client ID og Client Secret først.",
-      "oauth_error": "OAuth-autorisasjon mislyktes. Prøv igjen."
+      "oauth_error": "OAuth-autorisasjon mislyktes. Prøv igjen.",
+      "reauth_successful": "Ny godkjenning var vellykket"
     }
   },
   "options": {
@@ -154,3 +159,4 @@
     }
   }
 }
+

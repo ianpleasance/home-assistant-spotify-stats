@@ -12,6 +12,10 @@
       },
       "pick_implementation": {
         "title": "Select Authentication Method"
+      },
+      "reauth_confirm": {
+        "title": "Autentisera om Spotify-statistik",
+        "description": "Din Spotify-statistikanslutning för **{username}** behöver auktoriseras igen – Spotify avvisade den lagrade uppdateringstoken. Klicka på Skicka för att omdirigeras till Spotify och logga in igen."
       }
     },
     "error": {
@@ -22,7 +26,8 @@
     "abort": {
       "already_configured": "Detta Spotify-konto är redan konfigurerat",
       "missing_credentials": "Programreferenser inte konfigurerade. Gå till Inställningar → Enheter och tjänster → Programreferenser och lägg till ditt Spotify Client ID och Client Secret först.",
-      "oauth_error": "OAuth-auktorisering misslyckades. Försök igen."
+      "oauth_error": "OAuth-auktorisering misslyckades. Försök igen.",
+      "reauth_successful": "Omautentiseringen lyckades"
     }
   },
   "options": {
@@ -154,3 +159,4 @@
     }
   }
 }
+
