@@ -1,8 +1,8 @@
 # Spotify Statistics for Home Assistant
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![GitHub release](https://img.shields.io/github/release/ianpleasance/home-assistant-spotify-stats.svg)](https://github.com/ianpleasance/home-assistant-spotify-stats/releases)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-c62828.svg)](https://github.com/hacs/integration)
+[![version](https://img.shields.io/github/v/release/ianpleasance/home-assistant-spotify-stats?display_name=tag&sort=semver&color=blue&label=version)](https://github.com/ianpleasance/home-assistant-spotify-stats/releases/latest)
+[![license](https://img.shields.io/github/license/ianpleasance/home-assistant-spotify-stats)](LICENSE)
 
 A comprehensive Home Assistant custom integration that tracks detailed Spotify listening statistics, including now playing, recently played tracks, top artists and tracks across multiple time ranges, followed artists, playlists, and saved library.
 
